@@ -1087,7 +1087,7 @@ data:
         sc.zones = [
           { x0: 1, x1: 4, wallA: '#3b3b6d', wallB: '#323262', floorA: '#8e86a8', floorB: '#7d7598', stars: true, label: '🛰️ 데이터 크리에이터 캠프', sign: '#9479d6' },
           { x0: 5, x1: 9, wallA: '#efe3c8', wallB: '#e5d5b3', floorA: '#c2955f', floorB: '#b08451', label: '🎓 동아리', sign: '#d9a46a' },
-          { x0: 10, x1: 13, wallA: '#ffd9e6', wallB: '#ffc7da', floorA: '#e9bcc6', floorB: '#dca8b5', label: '🥈 SW 해커톤', sign: '#f08cb0' },
+          { x0: 10, x1: 13, wallA: '#ffd9e6', wallB: '#ffc7da', floorA: '#e9bcc6', floorB: '#dca8b5', label: '🏅 SW 해커톤', sign: '#f08cb0' },
         ];
         sc.rugs = [{ x: 1, y: 6, w: 4, h: 2, c: '#5b4596', c2: '#9479d6' }, { x: 10, y: 6, w: 4, h: 2, c: '#d8668f', c2: '#ffd3e3' }];
         ex({ id: 'dcc_seg', kind: 'poster', variant: 'map', color: '#5ab06a', name: '🗺️ 데이터 크리에이터 캠프 · 산업단지 분할 포스터', x: 1, y: 1, w: 2, h: 2 });
@@ -1095,7 +1095,7 @@ data:
         ex({ id: 'dcc_intro', kind: 'telescope', name: '🛰️ 데이터 크리에이터 캠프 망원경', x: 2, y: 4, w: 1, h: 2 });
         ex({ id: 'clubs', kind: 'cork', name: '🎓 동아리 게시판', x: 6, y: 1, w: 3, h: 2 });
         ex({ id: 'ext_summary', kind: 'lectern', name: '📖 대외활동 센터 안내판', x: 7, y: 4, w: 1, h: 2 });
-        ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🥈 온기 · SW 해커톤 2등 게시판', x: 10, y: 1, w: 3, h: 2 });
+        ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🏅 온기 · SW 해커톤 최우수상 게시판', x: 10, y: 1, w: 3, h: 2 });
         deco({ kind: 'podium', x: 12, y: 4 });
         deco({ kind: 'partition', x: 5, y: 3 }); deco({ kind: 'partition', x: 9, y: 3 });
         deco({ kind: 'pillar', x: 5, y: 0, solid: false, wall: true }); deco({ kind: 'pillar', x: 10, y: 0, solid: false, wall: true });
@@ -1120,7 +1120,7 @@ data:
           '우리 팀이 피지컬 AI 트랙에서 성능 1위를 했어!\n캡스톤 홀에 트로피랑 포스터, 발표 영상이 있으니까 꼭 봐!',
         ] },
         { id: 'mc', name: '해커톤 MC', sprite: 'mc', x: 35, y: 22, lines: [
-          '🎤 2025 PNU SW 창의융합 해커톤 2등 팀, 온기!',
+          '🎤 2025 PNU SW 창의융합 해커톤 최우수상 팀, 온기!',
           '그 팀 백엔드 개발자가 바로 소미예요.\n대외활동 센터 게시판에서 자세히 볼 수 있어요! 👏',
         ] },
         { id: 'scientist', name: '위성 연구원', sprite: 'scientist', x: 28, y: 22, lines: [
@@ -1300,7 +1300,7 @@ data:
           case 'crate': px(g, '#a8744a', X + 1, Y + 2, 14, 13); px(g, '#8a5a36', X + 1, Y + 2, 14, 2); px(g, '#8a5a36', X + 1, Y + 8, 14, 1); px(g, '#8a5a36', X + 7, Y + 2, 2, 13); break;
           case 'podium':
             px(g, '#c9cfdb', X + 1, Y + 8, 14, 8); px(g, '#e9edf5', X + 1, Y + 8, 14, 2); px(g, '#5b3a22', X + 6, Y + 11, 4, 3);
-            blob(g, X + 8, Y - 1, 5, '#dfe4ea'); blob(g, X + 8, Y - 1, 3, '#b8c0cc'); px(g, '#4f8dd9', X + 5, Y - 11, 2, 6); px(g, '#ff6b8f', X + 9, Y - 11, 2, 6);
+            blob(g, X + 8, Y - 1, 5, '#ffd76a'); blob(g, X + 8, Y - 1, 3, '#f2b52c'); px(g, '#4f8dd9', X + 5, Y - 11, 2, 6); px(g, '#ff6b8f', X + 9, Y - 11, 2, 6);
             px(g, '#ffffff', X + 6, Y - 3, 2, 2);
             break;
           case 'partition':
@@ -1409,7 +1409,7 @@ data:
             px(g, '#6b4430', X + 1, Y + 1, W - 2, H - 3); px(g, '#c99a62', X + 3, Y + 3, W - 6, H - 7);
             [['#fffaf0', 5, 6, 9, 8], ['#ffd3e3', 16, 5, 8, 10], ['#d4f0ff', 27, 7, 10, 7], ['#fff3b0', 8, 17, 12, 7], ['#e3f7d4', 23, 17, 10, 8]]
               .forEach(([c, x, y, w, h]) => { if (x + w < W - 3) { px(g, c, X + x, Y + y, w, h); px(g, '#ff6b8f', X + x + w / 2, Y + y, 1, 1); } });
-            if (e.medal) { blob(g, X + W - 9, Y + H - 11, 5, '#dfe4ea'); blob(g, X + W - 9, Y + H - 11, 3, '#b8c0cc'); px(g, '#4f8dd9', X + W - 12, Y + H - 21, 2, 6); px(g, '#ff6b8f', X + W - 8, Y + H - 21, 2, 6); }
+            if (e.medal) { blob(g, X + W - 9, Y + H - 11, 5, '#ffd76a'); blob(g, X + W - 9, Y + H - 11, 3, '#f2b52c'); px(g, '#4f8dd9', X + W - 12, Y + H - 21, 2, 6); px(g, '#ff6b8f', X + W - 8, Y + H - 21, 2, 6); }
             break;
           case 'lectern': {
             const glow = 0.5 + 0.5 * Math.sin(time / 300);
@@ -2173,13 +2173,13 @@ data:
     | 🔬 **DTPLab 연구실** | 학부연구생 — Isaac Sim 강화학습, ROS 로봇 시스템, SO-101 모방학습 비교 |
     | 🏆 **캡스톤 홀** | 졸업과제 — LeRobot SO-101 로봇팔 제어, **피지컬 AI 트랙 성능 1위** |
     | 🔧 **프로젝트 공방** | 팀 프로젝트 — 주로 **백엔드**, AWS 배포·CI/CD |
-    | 🎪 **대외활동 센터** | 데이터 크리에이터 캠프, SW 해커톤 **2등**, 동아리 3곳 |
+    | 🎪 **대외활동 센터** | 데이터 크리에이터 캠프, SW 해커톤 **최우수상**, 동아리 3곳 |
 
     ## ⭐ 하이라이트
     - 🏆 졸업과제 피지컬 AI 트랙 **성능 1위** (블록 옮기기 4.95/5, 쌓기 4.6/5)
-    - 🥈 2025 PNU SW 창의융합 해커톤 **2등** — 온기 (백엔드)
+    - 🏅 2025 PNU SW 창의융합 해커톤 **최우수상** — 온기 (백엔드)
     - 🛰️ 데이터 크리에이터 캠프 — 산업단지 분할 **mIoU 0.977**
-    - 🔐 정보보안 동아리 **Keeper 부회장**
+    - 🎓 동아리 — 정보보안 **구) Keeper 부회장**, 인공지능 동아리 **AID**, IT 서비스 동아리 **APPTIVE** 백엔드 트랙
 
     ## 이 방에 있는 것
     - 🖼️ **자기소개 액자** — 관심 분야와 연락처
@@ -2218,7 +2218,7 @@ data:
 
     ## 대표 프로젝트
     - **[kidzania-family](https://github.com/kidzania-family)** — 🏆 졸업과제: LeRobot SO-101 로봇팔 제어 (피지컬 AI 트랙 성능 1위)
-    - **[PNUSW-2025-OnGi-10](https://github.com/oxomi/PNUSW-2025-OnGi-10)** — 🥈 해커톤 2등, 가족 건강 소통 앱 *온기* (백엔드)
+    - **[PNUSW-2025-OnGi-10](https://github.com/oxomi/PNUSW-2025-OnGi-10)** — 🏅 해커톤 최우수상, 가족 건강 소통 앱 *온기* (백엔드)
     - **[ComTogether](https://github.com/ApptiveDev/ComTogether)** — AI 기반 PC 부품 호환성 분석 & 전문가 상담 (APPTIVE · 백엔드)
     - **[PPP](https://github.com/PNU-PPP/PPP)** — PNU 학사 도우미 앱 *피플플*
     - **[PraisePrisonApp](https://github.com/oxomi/PraisePrisonApp)** — 칭찬감옥: 나를 칭찬하는 SNS 일기 앱 (Kotlin)
@@ -2439,13 +2439,13 @@ data:
     | 🌐 [PNUin](https://github.com/oxomi/PNUin) | 웹응용프로그래밍 텀프로젝트 | Node.js · Express |
     | 🌱 [DB 텀프로젝트](https://github.com/oxomi/db_Termproject) | 탄소중립 스마트 SCM 플랫폼 | DB 설계 |
 
-    대회에서 만든 **온기(해커톤 2등)**는 🎪 대외활동 센터에 있어요!
+    대회에서 만든 **온기(해커톤 최우수상)**는 🎪 대외활동 센터에 있어요!
     `,
       },
       ws_ongi: {
-        title: '🥈 온기 — 해커톤 2등',
+        title: '🏅 온기 — 해커톤 최우수상',
         md: `
-    # 🥈 2025 PNU SW 창의융합 해커톤 2등
+    # 🏅 2025 PNU SW 창의융합 해커톤 최우수상
 
     ## 온기 — 부모와 자식 간 건강 관리 및 정서적 소통 앱
     멀리 사는 부모님의 건강을 기록하고 가족과 공유하는 모바일 서비스예요.
@@ -2557,12 +2557,12 @@ data:
     | 구역 | 활동 | 결과 |
     |---|---|---|
     | ⬅️ 왼쪽 · 보라색 | 🛰️ **데이터 크리에이터 캠프** (과기정통부·NIA, 2025.08–10) | 산업단지 분할 **mIoU 0.977**, 굴뚝 높이 RMSE ≈ 8m |
-    | ⬆️ 가운데 | 🎓 **동아리** — Keeper · AID · APPTIVE | 정보보안 동아리 **부회장** |
-    | ➡️ 오른쪽 · 분홍색 | 🥈 **2025 PNU SW 창의융합 해커톤** — 온기 | **2등**, 백엔드 담당 |
+    | ⬆️ 가운데 | 🎓 **동아리** — Keeper · AID · APPTIVE | **구) Keeper 부회장** |
+    | ➡️ 오른쪽 · 분홍색 | 🏅 **2025 PNU SW 창의융합 해커톤** — 온기 | **최우수상**, 백엔드 담당 |
 
     ## 한 줄씩
     - 🛰️ 위성 영상으로 대기오염 배출원(산업단지·굴뚝)을 찾는 end-to-end 파이프라인
-    - 🥈 부모님 건강 기록을 가족과 나누는 앱 *온기* — Spring Boot · MySQL · AWS
+    - 🏅 부모님 건강 기록을 가족과 나누는 앱 *온기* — Spring Boot · MySQL · AWS
     - 🎓 정보보안 → 인공지능 → IT 서비스 백엔드로 이어진 동아리 활동
     `,
       },
@@ -2573,7 +2573,7 @@ data:
 
     | 기간 | 동아리 | 활동 |
     |---|---|---|
-    | 2023-2학기 – 2024-2학기 | 🔐 **Keeper** (정보보안 동아리) | **부회장** |
+    | 2023-2학기 – 2024-2학기 | 🔐 **Keeper** (정보보안 동아리) | **구) 부회장** |
     | 2025-1, 2학기 | 🤖 **AID** (인공지능 동아리) | 부원 |
     | 2025-1, 2학기 | 📱 **APPTIVE** (IT 서비스 동아리) | 부원 · **백엔드 트랙** |
 

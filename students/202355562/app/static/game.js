@@ -446,7 +446,7 @@
     sc.zones = [
       { x0: 1, x1: 4, wallA: '#3b3b6d', wallB: '#323262', floorA: '#8e86a8', floorB: '#7d7598', stars: true, label: '🛰️ 데이터 크리에이터 캠프', sign: '#9479d6' },
       { x0: 5, x1: 9, wallA: '#efe3c8', wallB: '#e5d5b3', floorA: '#c2955f', floorB: '#b08451', label: '🎓 동아리', sign: '#d9a46a' },
-      { x0: 10, x1: 13, wallA: '#ffd9e6', wallB: '#ffc7da', floorA: '#e9bcc6', floorB: '#dca8b5', label: '🥈 SW 해커톤', sign: '#f08cb0' },
+      { x0: 10, x1: 13, wallA: '#ffd9e6', wallB: '#ffc7da', floorA: '#e9bcc6', floorB: '#dca8b5', label: '🏅 SW 해커톤', sign: '#f08cb0' },
     ];
     sc.rugs = [{ x: 1, y: 6, w: 4, h: 2, c: '#5b4596', c2: '#9479d6' }, { x: 10, y: 6, w: 4, h: 2, c: '#d8668f', c2: '#ffd3e3' }];
     ex({ id: 'dcc_seg', kind: 'poster', variant: 'map', color: '#5ab06a', name: '🗺️ 데이터 크리에이터 캠프 · 산업단지 분할 포스터', x: 1, y: 1, w: 2, h: 2 });
@@ -454,7 +454,7 @@
     ex({ id: 'dcc_intro', kind: 'telescope', name: '🛰️ 데이터 크리에이터 캠프 망원경', x: 2, y: 4, w: 1, h: 2 });
     ex({ id: 'clubs', kind: 'cork', name: '🎓 동아리 게시판', x: 6, y: 1, w: 3, h: 2 });
     ex({ id: 'ext_summary', kind: 'lectern', name: '📖 대외활동 센터 안내판', x: 7, y: 4, w: 1, h: 2 });
-    ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🥈 온기 · SW 해커톤 2등 게시판', x: 10, y: 1, w: 3, h: 2 });
+    ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🏅 온기 · SW 해커톤 최우수상 게시판', x: 10, y: 1, w: 3, h: 2 });
     deco({ kind: 'podium', x: 12, y: 4 });
     deco({ kind: 'partition', x: 5, y: 3 }); deco({ kind: 'partition', x: 9, y: 3 });
     deco({ kind: 'pillar', x: 5, y: 0, solid: false, wall: true }); deco({ kind: 'pillar', x: 10, y: 0, solid: false, wall: true });
@@ -479,7 +479,7 @@
       '우리 팀이 피지컬 AI 트랙에서 성능 1위를 했어!\n캡스톤 홀에 트로피랑 포스터, 발표 영상이 있으니까 꼭 봐!',
     ] },
     { id: 'mc', name: '해커톤 MC', sprite: 'mc', x: 35, y: 22, lines: [
-      '🎤 2025 PNU SW 창의융합 해커톤 2등 팀, 온기!',
+      '🎤 2025 PNU SW 창의융합 해커톤 최우수상 팀, 온기!',
       '그 팀 백엔드 개발자가 바로 소미예요.\n대외활동 센터 게시판에서 자세히 볼 수 있어요! 👏',
     ] },
     { id: 'scientist', name: '위성 연구원', sprite: 'scientist', x: 28, y: 22, lines: [
@@ -659,7 +659,7 @@
       case 'crate': px(g, '#a8744a', X + 1, Y + 2, 14, 13); px(g, '#8a5a36', X + 1, Y + 2, 14, 2); px(g, '#8a5a36', X + 1, Y + 8, 14, 1); px(g, '#8a5a36', X + 7, Y + 2, 2, 13); break;
       case 'podium':
         px(g, '#c9cfdb', X + 1, Y + 8, 14, 8); px(g, '#e9edf5', X + 1, Y + 8, 14, 2); px(g, '#5b3a22', X + 6, Y + 11, 4, 3);
-        blob(g, X + 8, Y - 1, 5, '#dfe4ea'); blob(g, X + 8, Y - 1, 3, '#b8c0cc'); px(g, '#4f8dd9', X + 5, Y - 11, 2, 6); px(g, '#ff6b8f', X + 9, Y - 11, 2, 6);
+        blob(g, X + 8, Y - 1, 5, '#ffd76a'); blob(g, X + 8, Y - 1, 3, '#f2b52c'); px(g, '#4f8dd9', X + 5, Y - 11, 2, 6); px(g, '#ff6b8f', X + 9, Y - 11, 2, 6);
         px(g, '#ffffff', X + 6, Y - 3, 2, 2);
         break;
       case 'partition':
@@ -768,7 +768,7 @@
         px(g, '#6b4430', X + 1, Y + 1, W - 2, H - 3); px(g, '#c99a62', X + 3, Y + 3, W - 6, H - 7);
         [['#fffaf0', 5, 6, 9, 8], ['#ffd3e3', 16, 5, 8, 10], ['#d4f0ff', 27, 7, 10, 7], ['#fff3b0', 8, 17, 12, 7], ['#e3f7d4', 23, 17, 10, 8]]
           .forEach(([c, x, y, w, h]) => { if (x + w < W - 3) { px(g, c, X + x, Y + y, w, h); px(g, '#ff6b8f', X + x + w / 2, Y + y, 1, 1); } });
-        if (e.medal) { blob(g, X + W - 9, Y + H - 11, 5, '#dfe4ea'); blob(g, X + W - 9, Y + H - 11, 3, '#b8c0cc'); px(g, '#4f8dd9', X + W - 12, Y + H - 21, 2, 6); px(g, '#ff6b8f', X + W - 8, Y + H - 21, 2, 6); }
+        if (e.medal) { blob(g, X + W - 9, Y + H - 11, 5, '#ffd76a'); blob(g, X + W - 9, Y + H - 11, 3, '#f2b52c'); px(g, '#4f8dd9', X + W - 12, Y + H - 21, 2, 6); px(g, '#ff6b8f', X + W - 8, Y + H - 21, 2, 6); }
         break;
       case 'lectern': {
         const glow = 0.5 + 0.5 * Math.sin(time / 300);
