@@ -1399,8 +1399,10 @@
       <div class="sub">미끼 하나에 <b>💰${cost}G</b> (물고기를 낚았을 때만 써요) · 내 지갑 <b id="fiPts">${st.points}G</b></div>
       <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
       <div class="fish-stage">
-        <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!</div>
+        <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!<br>
+          <small>초록 칸 <b>정중앙(노란 줄)</b>에 가까울수록 희귀하고 큰 물고기가 잘 잡혀요.</small></div>
         <div class="fish-bar hidden" id="fiBar"><div class="fish-zone" id="fiZone"></div><div class="fish-marker" id="fiMark"></div></div>
+        <div class="fish-legend hidden" id="fiLegend"><span><i style="background:#d6f2c2"></i>성공</span><span><i style="background:#7cc45a"></i>좋아요</span><span><i style="background:#ffe066"></i>완벽!</span></div>
         <div id="fiResult"></div>
         <button class="pink" id="fiGo">🎣 낚싯대 던지기</button>
       </div>
@@ -1417,7 +1419,8 @@
     };
     const bite = () => {
       phase = 'bite';
-      msg('❗ <b>입질이다!</b> 바늘이 초록 칸에 오면 Space!');
+      msg('❗ <b>입질이다!</b> 바늘이 초록 칸 <b>가운데</b>에 오면 Space!');
+      $('fiLegend').classList.remove('hidden');
       const w = 7 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
       zone = { a: Math.random() * (100 - w), w };
       $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
@@ -1468,7 +1471,7 @@
         $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
           <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
         renderFishInfo(res);
-        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 대물이다!!' : '낚았다! 🎉');
+        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 물고기를 낚았어요!!' : '낚았다! 🎉');
       } catch (e) { idle(); msg(e.message, true); }
     };
     const press = () => {

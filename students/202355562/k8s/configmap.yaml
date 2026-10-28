@@ -744,7 +744,12 @@ data:
       .fish-msg { font-size: 15px; margin-bottom: 10px; min-height: 22px; }
       .fish-msg.err { color: #c62828; }
       .fish-bar { position: relative; height: 30px; margin: 4px 0 12px; background: #e8f6ff; border: 3px solid var(--wood-dark); border-radius: 6px; overflow: hidden; }
-      .fish-zone { position: absolute; top: 0; bottom: 0; background: #7cc45a; box-shadow: inset 0 0 0 2px #4f9a3c; }
+      /* 판정 칸: 가장자리(연두) → 가운데(진한 초록) → 정중앙(노랑). 가운데일수록 정확도가 높다 */
+      .fish-zone { position: absolute; top: 0; bottom: 0; box-shadow: inset 0 0 0 2px #4f9a3c;
+        background: linear-gradient(90deg, #d6f2c2 0%, #7cc45a 35%, #ffe066 47%, #ffe066 53%, #7cc45a 65%, #d6f2c2 100%); }
+      .fish-zone::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #f2b52c; box-shadow: 0 0 4px #fff27a; }
+      .fish-legend { display: flex; justify-content: center; gap: 12px; font-size: 12px; color: #3d5a73; margin: -6px 0 10px; }
+      .fish-legend i { display: inline-block; width: 12px; height: 10px; border: 1px solid #4f9a3c; vertical-align: -1px; margin-right: 4px; }
       .fish-marker { position: absolute; top: -2px; bottom: -2px; width: 6px; background: #d8668f; border: 1px solid var(--wood-dark); }
       .fish-stage .pink { font-size: 17px; padding: 9px 22px; }
       .catch { background: var(--paper); border: 3px solid var(--wood-light); border-radius: 8px; padding: 10px; margin: 0 auto 12px; max-width: 280px; }
@@ -2231,8 +2236,10 @@ data:
           <div class="sub">미끼 하나에 <b>💰${cost}G</b> (물고기를 낚았을 때만 써요) · 내 지갑 <b id="fiPts">${st.points}G</b></div>
           <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
           <div class="fish-stage">
-            <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!</div>
+            <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!<br>
+              <small>초록 칸 <b>정중앙(노란 줄)</b>에 가까울수록 희귀하고 큰 물고기가 잘 잡혀요.</small></div>
             <div class="fish-bar hidden" id="fiBar"><div class="fish-zone" id="fiZone"></div><div class="fish-marker" id="fiMark"></div></div>
+            <div class="fish-legend hidden" id="fiLegend"><span><i style="background:#d6f2c2"></i>성공</span><span><i style="background:#7cc45a"></i>좋아요</span><span><i style="background:#ffe066"></i>완벽!</span></div>
             <div id="fiResult"></div>
             <button class="pink" id="fiGo">🎣 낚싯대 던지기</button>
           </div>
@@ -2249,7 +2256,8 @@ data:
         };
         const bite = () => {
           phase = 'bite';
-          msg('❗ <b>입질이다!</b> 바늘이 초록 칸에 오면 Space!');
+          msg('❗ <b>입질이다!</b> 바늘이 초록 칸 <b>가운데</b>에 오면 Space!');
+          $('fiLegend').classList.remove('hidden');
           const w = 7 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
           zone = { a: Math.random() * (100 - w), w };
           $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
@@ -2300,7 +2308,7 @@ data:
             $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
               <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
             renderFishInfo(res);
-            idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 대물이다!!' : '낚았다! 🎉');
+            idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 물고기를 낚았어요!!' : '낚았다! 🎉');
           } catch (e) { idle(); msg(e.message, true); }
         };
         const press = () => {
