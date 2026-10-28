@@ -1397,6 +1397,7 @@
     }
     // 벽에 붙은 전시물/장식은 바닥 다음에 먼저 그림
     scene.objects.filter((o) => o.wall).forEach((o) => drawObject(ctx, o, time));
+    if (summaryUnread(scene)) drawGuidePath(summaryOf(scene), time);
     scene.exhibits.filter((e) => e.y + e.h <= 3).forEach((e) => drawExhibit(ctx, e, time));
 
     const items = [
@@ -1466,10 +1467,11 @@
     px(ctx, '#5b3a22', x - 3, by - 7, 7, 10); px(ctx, '#ffd23f', x - 2, by - 6, 5, 8);
     px(ctx, '#5b3a22', x - 1, by - 5, 2, 4); px(ctx, '#5b3a22', x - 1, by, 2, 1);
   }
-  // 문 매트 → 안내판까지 반짝이는 발자국 + "여기부터!" 말풍선
-  function drawGuide(g, time) {
+  // 문 매트 → 안내판까지 반짝이는 발자국 (바닥 레이어라 캐릭터보다 먼저 그린다)
+  function drawGuidePath(g, time) {
     const x = scene.exit.x * T, top = g.y + g.h, step = Math.floor(time / 220);
     for (let ty = scene.exit.y - 1, i = 0; ty >= top; ty--, i++) {
+      if (ty === me.y && x === me.x * T) continue;   // 서 있는 칸은 비워 둔다
       const on = (step - i) % 4;
       ctx.globalAlpha = on === 0 ? 1 : on === 1 ? 0.7 : 0.4;
       [[3, 8], [9, 2]].forEach(([fx, fy]) => {
@@ -1478,6 +1480,9 @@
       });
     }
     ctx.globalAlpha = 1;
+  }
+  // 안내판 위 "여기부터!" 말풍선
+  function drawGuide(g, time) {
     const cx = (g.x + g.w / 2) * T, cy = g.y * T - 9 + Math.sin(time / 220) * 1.5;
     ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const label = '📖 여기부터!', w = Math.ceil(ctx.measureText(label).width) + 8;
