@@ -1,4 +1,4 @@
-"""Pixel CV Quest - 포인트 / 방명록 / 별점 API 서버.
+"""소미의 CV 밸리 - G(포인트) / 방명록 / 별점 / 꽃밭 / 낚시 API 서버.
 
 외부 패키지 없이 Python 표준 라이브러리만 사용한다.
 (이미지를 따로 빌드하지 않고 ConfigMap으로 이 파일을 주입하기 위해서)
@@ -7,6 +7,7 @@ REDIS_HOST가 비어 있으면 메모리 저장소로 동작한다 (로컬 테�
 """
 import json
 import os
+import random
 import re
 import socket
 import threading
@@ -22,8 +23,10 @@ REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 POINTS_PER_VISIT = int(os.environ.get("POINTS_PER_VISIT", "10"))
 GUESTBOOK_COST = int(os.environ.get("GUESTBOOK_COST", "30"))
 RATING_COST = int(os.environ.get("RATING_COST", "20"))
+FLOWER_COST = int(os.environ.get("FLOWER_COST", "15"))
+BAIT_COST = int(os.environ.get("BAIT_COST", "10"))
 SPOT_IDS = set(os.environ.get("SPOT_IDS", ",".join([
-    "guide", "senior", "teammate", "mc", "scientist", "cat",
+    "guide", "senior", "teammate", "mc", "scientist", "cat", "fisher", "gardener",
     "home_summary", "ws_summary", "ext_summary", "clubs",
     "home_profile", "home_skills", "home_github", "lab_intro", "lab_isaac", "lab_ros", "lab_vla",
     "cap_trophy", "cap_poster", "cap_data", "cap_policy", "cap_video",
@@ -35,6 +38,30 @@ VIDEO_URL = os.environ.get("VIDEO_URL", MEDIA_BASE + "capstone-video.mp4")
 MEDIA_DIR = os.environ.get("MEDIA_DIR", os.path.join(os.path.dirname(__file__), "..", "media"))
 MEDIA_TYPES = {".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".mp4": "video/mp4"}
 GUESTBOOK_MAX = 200
+
+# 방문자 꽃밭: 마을 밭 21칸 (game.js의 밭 좌표와 같다)
+PLOTS = {"%d,%d" % (x, y) for x in range(4, 11) for y in range(13, 16)}
+FLOWER_KINDS = {"tulip", "rose", "sunflower", "lavender", "daisy", "sakura"}
+
+# 연못 물고기: id, 이름, 이모지, 최소 cm, 최대 cm, 가중치, 등급
+FISH = [
+    ("minnow", "피라미", "🐟", 5, 12, 40, "흔함"),
+    ("crucian", "붕어", "🐠", 10, 28, 30, "흔함"),
+    ("carp", "잉어", "🎏", 30, 75, 14, "보통"),
+    ("catfish", "메기", "🐡", 40, 95, 8, "보통"),
+    ("goldfish", "금붕어", "🌟", 6, 16, 4, "희귀"),
+    ("sakura", "벚꽃 송어", "🌸", 30, 60, 3, "희귀"),
+    ("golden", "황금 잉어", "👑", 60, 110, 0.8, "전설"),
+    ("robot", "로봇 물고기 SO-101", "🤖", 101, 101, 0.2, "전설"),
+]
+
+
+def roll_fish(accuracy):
+    """물고기 종류와 크기를 서버에서 뽑는다. 타이밍이 정확할수록 희귀하고 큰 물고기가 잘 나온다."""
+    boost = {"희귀": 1 + 2 * accuracy, "전설": 1 + 3 * accuracy}
+    f = random.choices(FISH, [x[5] * boost.get(x[6], 1) for x in FISH])[0]
+    size = f[3] + (f[4] - f[3]) * random.random() ** (1.4 - 0.8 * accuracy)
+    return {"id": f[0], "name": f[1], "emoji": f[2], "rarity": f[6], "size": round(size, 1)}
 
 PLAYER_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
 CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -179,6 +206,38 @@ class RedisStore:
         vals = [int(v) for v in self.r.call("HVALS", "ratings") or []]
         return vals
 
+    def plant(self, player, plot, flower):
+        # 별점과 같은 Lua: 칸이 비어 있고 G가 충분할 때만 심고 차감 (원자적)
+        return self.r.call("EVAL", RATE_LUA, 2, "player:%s:points" % player, "garden",
+                           FLOWER_COST, plot, json.dumps(flower, ensure_ascii=False))
+
+    def garden(self):
+        flat = self.r.call("HGETALL", "garden") or []
+        return {flat[i]: json.loads(flat[i + 1]) for i in range(0, len(flat), 2)}
+
+    def record_fish(self, player, name, fish):
+        dex = "player:%s:fishdex" % player
+        best = self.r.call("HGET", dex, fish["id"])
+        if best is None or float(best) < fish["size"]:
+            self.r.call("HSET", dex, fish["id"], fish["size"])
+        top = self.r.call("ZSCORE", "fish:rank", player)
+        record = top is None or float(top) < fish["size"]
+        if record:   # 랭킹은 Sorted Set: 플레이어별 최고 기록(cm)을 점수로
+            self.r.call("ZADD", "fish:rank", fish["size"], player)
+            self.r.call("HSET", "fish:who", player, json.dumps({"name": name, "fish": fish}, ensure_ascii=False))
+        return record
+
+    def fish_dex(self, player):
+        flat = self.r.call("HGETALL", "player:%s:fishdex" % player) or []
+        return {flat[i]: float(flat[i + 1]) for i in range(0, len(flat), 2)}
+
+    def fish_rank(self, n=10):
+        players = (self.r.call("ZREVRANGE", "fish:rank", 0, n - 1) or [])
+        if not players:
+            return []
+        infos = self.r.call("HMGET", "fish:who", *players)
+        return [(p, json.loads(i)) for p, i in zip(players, infos) if i]
+
 
 class MemoryStore:
     """REDIS_HOST가 없을 때 쓰는 메모리 저장소 (재시작하면 초기화됨)."""
@@ -186,6 +245,7 @@ class MemoryStore:
     def __init__(self):
         self.lock = threading.Lock()
         self.pts, self.seen, self.book, self.ratings = {}, {}, [], {}
+        self.flowers, self.dex, self.rank = {}, {}, {}
 
     def ping(self):
         return True
@@ -238,6 +298,37 @@ class MemoryStore:
     def rating_stats(self):
         return list(self.ratings.values())
 
+    def plant(self, player, plot, flower):
+        with self.lock:
+            if plot in self.flowers:
+                return -2
+            p = self.pts.get(player, 0)
+            if p < FLOWER_COST:
+                return -1
+            self.flowers[plot] = flower
+            self.pts[player] = p - FLOWER_COST
+            return p - FLOWER_COST
+
+    def garden(self):
+        return dict(self.flowers)
+
+    def record_fish(self, player, name, fish):
+        with self.lock:
+            dex = self.dex.setdefault(player, {})
+            dex[fish["id"]] = max(dex.get(fish["id"], 0), fish["size"])
+            top = self.rank.get(player)
+            record = top is None or top[0] < fish["size"]
+            if record:
+                self.rank[player] = (fish["size"], {"name": name, "fish": fish})
+            return record
+
+    def fish_dex(self, player):
+        return dict(self.dex.get(player, {}))
+
+    def fish_rank(self, n=10):
+        rows = sorted(self.rank.items(), key=lambda kv: -kv[1][0])[:n]
+        return [(p, info) for p, (size, info) in rows]
+
 
 store = RedisStore(Redis(REDIS_HOST, REDIS_PORT, REDIS_PASSWORD)) if REDIS_HOST else MemoryStore()
 
@@ -260,7 +351,8 @@ def state(player):
         "visited": store.visited(player),
         "myRating": store.my_rating(player),
         "rating": rating_summary(),
-        "costs": {"guestbook": GUESTBOOK_COST, "rating": RATING_COST, "visit": POINTS_PER_VISIT},
+        "costs": {"guestbook": GUESTBOOK_COST, "rating": RATING_COST, "visit": POINTS_PER_VISIT,
+                  "flower": FLOWER_COST, "bait": BAIT_COST},
         "spotCount": len(SPOT_IDS),
         "media": {"base": MEDIA_BASE, "video": VIDEO_URL},
         "storage": "redis" if REDIS_HOST else "memory",
@@ -274,6 +366,54 @@ def api_visit(body):
         raise ApiError(400, "모르는 장소입니다.")
     awarded = store.award_visit(player, spot)
     return dict(state(player), awarded=POINTS_PER_VISIT if awarded else 0)
+
+
+def clean_name(value):
+    name = str(value or "").strip()[:12]
+    if not name:
+        raise ApiError(400, "이름(닉네임)을 적어 주세요.")
+    return name
+
+
+def api_plant(body):
+    player = check_player(body.get("player"))
+    try:
+        plot = "%d,%d" % (int(body.get("x")), int(body.get("y")))
+    except (TypeError, ValueError):
+        plot = ""
+    if plot not in PLOTS:
+        raise ApiError(400, "꽃은 마을 꽃밭에만 심을 수 있어요.")
+    kind = body.get("kind")
+    if kind not in FLOWER_KINDS:
+        raise ApiError(400, "모르는 꽃 씨앗이에요.")
+    result = store.plant(player, plot, {"name": clean_name(body.get("name")), "kind": kind, "ts": int(time.time())})
+    if result == -2:
+        raise ApiError(409, "이미 다른 방문자의 꽃이 피어 있어요! 빈 칸을 골라 주세요.")
+    if result < 0:
+        raise ApiError(402, "씨앗을 살 G가 부족해요. 집 안 전시물을 읽고 G를 모아 보세요!")
+    return dict(state(player), plots=store.garden())
+
+
+def fishing(player):
+    return {
+        "dex": store.fish_dex(player),
+        "rank": [dict(info, me=(p == player)) for p, info in store.fish_rank()],
+        "species": [{"id": f[0], "name": f[1], "emoji": f[2], "rarity": f[6]} for f in FISH],
+    }
+
+
+def api_fish(body):
+    player = check_player(body.get("player"))
+    name = clean_name(body.get("name"))
+    try:
+        accuracy = max(0.0, min(1.0, float(body.get("accuracy", 0))))
+    except (TypeError, ValueError):
+        accuracy = 0.0
+    if store.spend(player, BAIT_COST) < 0:
+        raise ApiError(402, "미끼를 살 G가 부족해요. 집 안 전시물을 읽고 G를 모아 보세요!")
+    fish = roll_fish(accuracy)
+    record = store.record_fish(player, name, fish)
+    return dict(state(player), fish=fish, record=record, **fishing(player))
 
 
 def api_guestbook(body):
@@ -343,10 +483,15 @@ class Handler(BaseHTTPRequestHandler):
             return self._guard(lambda: state(check_player(q.get("player", [""])[0])))
         if url.path == "/api/guestbook":
             return self._guard(lambda: {"entries": store.entries()})
+        if url.path == "/api/garden":
+            return self._guard(lambda: {"plots": store.garden()})
+        if url.path == "/api/fishing":
+            return self._guard(lambda: fishing(check_player(q.get("player", [""])[0])))
         return self._static(url.path)
 
     def do_POST(self):
-        routes = {"/api/visit": api_visit, "/api/guestbook": api_guestbook, "/api/rating": api_rating}
+        routes = {"/api/visit": api_visit, "/api/guestbook": api_guestbook, "/api/rating": api_rating,
+                  "/api/plant": api_plant, "/api/fish": api_fish}
         fn = routes.get(urlparse(self.path).path)
         if not fn:
             return self._json(404, {"error": "not found"})

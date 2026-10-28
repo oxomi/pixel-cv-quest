@@ -137,6 +137,36 @@
   .stars button { font-size: 34px; background: none; border: none; box-shadow: none; color: #d9c7a6; padding: 2px; }
   .stars button.on { color: #ffb300; text-shadow: 2px 2px 0 var(--wood-dark); }
   .big { text-align: center; font-size: 15px; }
+  /* 미니게임 */
+  .seeds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0 4px; }
+  .seeds button { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; padding: 8px 4px; }
+  .seeds button span { font-size: 26px; }
+  .seeds button.on { background: var(--pink-light); border-color: var(--pink-dark); box-shadow: inset 0 -3px 0 var(--pink); }
+  .fish-stage { text-align: center; margin: 12px 0 4px; padding: 14px; background: linear-gradient(#cfeaff, #9fd3f2); border: 3px solid var(--wood-dark); border-radius: 8px; }
+  .fish-msg { font-size: 15px; margin-bottom: 10px; min-height: 22px; }
+  .fish-msg.err { color: #c62828; }
+  .fish-bar { position: relative; height: 30px; margin: 4px 0 12px; background: #e8f6ff; border: 3px solid var(--wood-dark); border-radius: 6px; overflow: hidden; }
+  .fish-zone { position: absolute; top: 0; bottom: 0; background: #7cc45a; box-shadow: inset 0 0 0 2px #4f9a3c; }
+  .fish-marker { position: absolute; top: -2px; bottom: -2px; width: 6px; background: #d8668f; border: 1px solid var(--wood-dark); }
+  .fish-stage .pink { font-size: 17px; padding: 9px 22px; }
+  .catch { background: var(--paper); border: 3px solid var(--wood-light); border-radius: 8px; padding: 10px; margin: 0 auto 12px; max-width: 280px; }
+  .catch .big { font-size: 46px; line-height: 1.2; }
+  .catch .size { font-size: 22px; font-weight: 700; color: var(--pink-dark); }
+  .catch .rec { color: #b07800; font-weight: 700; }
+  .catch .tag, .fish small { font-size: 11px; }
+  .catch .tag { background: var(--paper-dark); border-radius: 4px; padding: 1px 6px; }
+  .catch.r-희귀 { border-color: #a97ae0; box-shadow: 0 0 0 3px #e6d6ff; }
+  .catch.r-전설 { border-color: #f2b52c; box-shadow: 0 0 0 3px #fff1b8, 0 0 18px #ffd76a; }
+  .dex { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .dex .fish { background: #f3e6cc; border: 2px solid var(--paper-dark); border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 12px; color: var(--muted); }
+  .dex .fish span { display: block; font-size: 22px; }
+  .dex .fish small { display: block; }
+  .dex .fish.got { background: #fffaf0; color: var(--ink); }
+  .dex .fish.r-희귀 { border-color: #a97ae0; } .dex .fish.r-전설 { border-color: #f2b52c; }
+  .rank { padding-left: 4px; list-style: none; } .rank li { margin: 4px 0; }
+  .rank li.me, .doc tr.me td { background: var(--pink-light); border-radius: 4px; }
+  @media (max-width: 520px) { .dex { grid-template-columns: repeat(2, 1fr); } }
+  .title .mini { color: #fff; font-size: clamp(12px, 1.7vw, 16px); text-shadow: 2px 2px 0 var(--wood-dark); background: rgba(91,58,34,.55); padding: 4px 12px; border-radius: 6px; }
   .bigmap { width: 100%; height: auto; image-rendering: pixelated; border: 4px solid var(--wood-dark); border-radius: 6px; cursor: pointer; display: block; }
   .places { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .places button { font-size: 13px; padding: 5px 10px; }
@@ -153,6 +183,7 @@
         <button class="pink" id="btnStart">▶ 마을로 들어가기</button>
         <button id="btnQuickCv">📜 CV 바로 보기</button>
       </div>
+      <div class="mini">🎣 연못 낚시 · 🌱 꽃 심기 미니게임도 있어요!</div>
       <div class="press">Enter / Space 를 눌러 시작</div>
     </div>
 
@@ -190,7 +221,7 @@
   </div>
 
   <p class="hint">← ↑ → ↓ / WASD 이동 · Space / Enter 대화·조사 · M 지도 · N 미니맵 크기 ·마우스로 클릭하면 그곳까지 걸어가요<br>
-    집에 들어가 포스터와 게시판을 읽으면 💰G를 받아요. G로 광장에서 📮방명록과 ⭐별점을 남겨 주세요!</p>
+    집에 들어가 포스터와 게시판을 읽으면 💰G를 받아요. G로 📮방명록 · ⭐별점 · 🎣낚시 · 🌱꽃 심기를 즐겨 보세요!</p>
 </div>
 
 <div class="modal" id="modal"><div class="panel card"><div class="head"><span id="cardTitle"></span><button id="cardClose">✕</button></div><div class="body" id="cardBody"></div></div></div>

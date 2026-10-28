@@ -232,6 +232,8 @@
     mc: sprite(PERSON, { ...BASE_NPC, H: '#e8b84a', h: '#ffd77a', T: '#7b5cd6', t: '#5b40ad', P: '#262633' }),
     scientist: sprite(withGlasses(PERSON), { ...BASE_NPC, H: '#6b4a8c', h: '#8e6bb0', T: '#ffffff', t: '#d4dbe6', P: '#42506b' }),
     cat: sprite(CAT, { o: '#f6e3c6', e: '#3a2a2a', p: '#f08cb0', t: '#e2c7a2', w: '#ffffff' }),
+    fisher: sprite(PERSON, { ...BASE_NPC, H: '#3b2a26', h: '#5a4038', T: '#4f8dd9', t: '#3a6fb0', P: '#2f5a8a' }),
+    gardener: sprite(GIRL, { ...BASE_NPC, H: '#5a3b2a', h: '#7a5640', T: '#7cc45a', t: '#5aa845', P: '#c9a46a', p: '#b08451' }),
   };
 
   // ================================================================ 마을 소품 그리기
@@ -399,6 +401,11 @@
     town.exhibits.push({ id: 'board', kind: 'board', name: '📮 마을 방명록', x: 17, y: 12, w: 1, h: 1, action: 'guestbook' });
     town.exhibits.push({ id: 'statue', kind: 'statue', name: '⭐ 별 동상', x: 22, y: 12, w: 1, h: 1, action: 'rating' });
     block(town, 17, 12); block(town, 22, 12);
+    // 미니게임: 연못 낚시터 + 월척 랭킹 게시판, 방문자 꽃밭 안내판
+    town.exhibits.push({ id: 'fishing', kind: 'dock', name: '🎣 낚시터 (미끼 10G)', x: 27, y: 15, w: 1, h: 1, action: 'fishing' });
+    town.exhibits.push({ id: 'fishrank', kind: 'rankboard', name: '🏆 월척 랭킹 게시판', x: 26, y: 13, w: 1, h: 1, action: 'fishrank' });
+    town.exhibits.push({ id: 'gardensign', kind: 'gardensign', name: '🌱 방문자 꽃밭 안내판', x: 8, y: 11, w: 1, h: 1, action: 'garden' });
+    block(town, 26, 13); block(town, 8, 11);
 
     // 연못 연잎 + 작은 다리
     town.lily = [[28, 14], [31, 15], [29, 16], [30, 13]];
@@ -497,6 +504,7 @@
       '처음 보는 전시물을 읽거나 주민과 처음 대화하면 💰10G!\n모은 G로 광장의 📮방명록(30G)과 ⭐별 동상(20G)을 쓸 수 있어요.',
       '방향키로 걷고 Space로 조사해요.\n마우스로 아무 곳이나 클릭하면 거기까지 알아서 걸어가요!',
       '길을 잃으면 M 키로 지도를 열어 보세요.\n가고 싶은 집을 누르면 문 앞까지 데려다줘요! 🗺️',
+      '💰 G가 모이면 연못에서 🎣 낚시를 하거나\n꽃밭에 🌱 내 이름으로 꽃을 심어 보세요! 월척 랭킹에도 도전해 봐요.',
     ] },
     { id: 'senior', name: 'DTPLab 선배', sprite: 'senior', x: 10, y: 8, lines: [
       '안녕! 나는 DTPLab 선배야. 🔬',
@@ -513,6 +521,15 @@
     { id: 'scientist', name: '위성 연구원', sprite: 'scientist', x: 28, y: 22, lines: [
       '🛰️ 위성 사진만 보고 굴뚝 높이를 맞힐 수 있을까?',
       '소미가 데이터 크리에이터 캠프에서 해낸 일이야.\n대외활동 센터 안 포스터를 확인해 봐!',
+    ] },
+    { id: 'gardener', name: '정원사 봄이', sprite: 'gardener', x: 6, y: 11, lines: [
+      '🌱 여기는 방문자 꽃밭이야! 마을에 온 사람들이 꽃을 심고 가는 곳이지.',
+      '울타리 안 빈 밭 칸 위에 서서 Space를 누르면\n15G로 네 이름이 적힌 꽃을 심을 수 있어. 다른 방문자들에게도 보여! 🌷',
+    ] },
+    { id: 'fisher', name: '낚시꾼 연이', sprite: 'fisher', x: 25, y: 16, lines: [
+      '🎣 연못에서 낚시해 볼래? 미끼는 10G야.',
+      '찌가 흔들리면 움직이는 바늘이 초록 칸에 올 때 Space!\n타이밍이 정확할수록 크고 희귀한 물고기가 잡혀.',
+      '전설의 물고기도 있다던데…\n큰 걸 낚으면 🏆 월척 랭킹 게시판에 이름이 올라가!',
     ] },
     { id: 'cat', name: '모찌', sprite: 'cat', x: 22, y: 15, wander: { x: 16, y: 15, w: 8, h: 2 }, lines: [
       '냐옹~ 🐾',
@@ -582,11 +599,7 @@
     } else if (t === 'soil') {
       px(g, '#9b6a45', X, Y, T, T);
       for (let i = 2; i < T; i += 5) px(g, '#7d5235', X, Y + i, T, 1);
-      const k = Math.floor(r * 4);
-      if (k === 0) { px(g, '#5aa845', X + 5, Y + 6, 2, 5); px(g, '#5aa845', X + 3, Y + 5, 2, 2); px(g, '#5aa845', X + 7, Y + 4, 2, 2); }
-      else if (k === 1) { px(g, '#4f9a3c', X + 6, Y + 7, 2, 5); px(g, '#ff7aa8', X + 5, Y + 3, 4, 4); px(g, '#ffb3cd', X + 6, Y + 4, 2, 2); }
-      else if (k === 2) { blob(g, X + 8, Y + 9, 4, '#7cc45a'); blob(g, X + 8, Y + 9, 2, '#a9dc7d'); }
-      else { px(g, '#4f9a3c', X + 7, Y + 6, 2, 5); px(g, '#ffd23f', X + 5, Y + 3, 6, 4); px(g, '#ff9f1c', X + 7, Y + 4, 2, 2); }
+      px(g, '#8a5c3b', X + 3, Y + 7, 10, 6); px(g, '#a8774f', X + 4, Y + 7, 8, 2);   // 빈 밭 흙더미
     } else if (t === 'water') {
       px(g, '#5cb2e6', X, Y, T, T);
       if (r > 0.5) px(g, '#4ea1d6', X + 2, Y + 5, 6, 1);
@@ -717,6 +730,28 @@
   function drawExhibit(g, e, time) {
     const X = e.x * T, Y = e.y * T, W = e.w * T, H = e.h * T;
     switch (e.kind) {
+      case 'dock': {
+        px(g, '#6b4430', X - 5, Y + 3, 20, 10);
+        for (let i = 0; i < 5; i++) px(g, i % 2 ? '#b98352' : '#a8744a', X - 4 + i * 4, Y + 4, 3, 8);
+        px(g, '#5b3a22', X + 12, Y + 12, 2, 4); px(g, '#5b3a22', X - 4, Y + 12, 2, 4);
+        px(g, '#7a4a2c', X + 1, Y - 7, 1, 11);
+        const bob = Math.round(Math.sin(time / 300));
+        for (let i = 0; i <= 9; i++) px(g, '#e9edf5', X + 2 + i, Y - 7 + Math.round(i * 0.9) + (i > 7 ? bob : 0), 1, 1);
+        px(g, '#ff4f6d', X + 11, Y + 2 + bob, 2, 2); px(g, '#ffffff', X + 11, Y + 1 + bob, 2, 1);
+        px(g, '#bfe6ff', X + 8, Y + 5 + bob, 7, 1);
+        break;
+      }
+      case 'rankboard':
+        px(g, '#6b4430', X + 3, Y + 6, 2, 10); px(g, '#6b4430', X + 11, Y + 6, 2, 10);
+        px(g, '#5b3a22', X - 2, Y - 8, 20, 15); px(g, '#d9b47c', X - 1, Y - 7, 18, 13);
+        px(g, '#f2b52c', X + 1, Y - 6, 4, 3); px(g, '#f2b52c', X + 2, Y - 3, 2, 2);
+        for (let i = 0; i < 3; i++) px(g, '#8a5a36', X + 6, Y - 6 + i * 3, 9 - i * 2, 1);
+        px(g, '#5cb2e6', X + 1, Y + 1, 6, 3); px(g, '#ffffff', X + 2, Y + 1, 1, 1);
+        break;
+      case 'gardensign':
+        px(g, '#6b4430', X + 7, Y + 4, 2, 12); px(g, '#5b3a22', X - 2, Y - 6, 20, 11); px(g, '#c99a62', X - 1, Y - 5, 18, 9);
+        [[2, '#ff7aa8'], [7, '#ffd23f'], [12, '#c9a8ff']].forEach(([fx, c]) => { px(g, '#4f9a3c', X + fx, Y - 3, 1, 4); px(g, c, X + fx - 1, Y - 4, 3, 2); });
+        break;
       case 'board':
         px(g, '#6b4430', X + 2, Y + 6, 2, 10); px(g, '#6b4430', X + 12, Y + 6, 2, 10);
         px(g, '#8a5a36', X - 2, Y - 8, 20, 16); px(g, '#c99a62', X, Y - 6, 16, 12);
@@ -840,10 +875,18 @@
     $('hudFound').textContent = st.visited.length;
     $('hudTotal').textContent = st.spotCount;
     $('hudRating').textContent = st.rating.count ? st.rating.avg.toFixed(1) : '-';
+    miniHint();
   }
   const setOnline = (ok) => $('hudOffline').classList.toggle('hidden', ok);
   async function refresh() {
     try { applyState(await api('/api/state?player=' + encodeURIComponent(playerId))); setOnline(true); } catch (e) { setOnline(false); }
+    try { garden = (await api('/api/garden')).plots; } catch (e) { /* 다음 갱신 때 다시 시도 */ }
+  }
+  // 처음으로 미끼값만큼 G가 모이면 미니게임을 한 번 알려 준다
+  function miniHint() {
+    if (mode !== 'play' || st.points < st.costs.bait || store.get('cvv.minihint')) return;
+    store.set('cvv.minihint', '1');
+    setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 지도)', 3600), 1900);
   }
   async function visit(id) {
     if (st.visited.includes(id)) return;
@@ -900,7 +943,7 @@
   // ================================================================ 입력
   const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
   window.addEventListener('keydown', (e) => {
-    if (modalOpen) { if (e.key === 'Escape') closeModal(); return; }
+    if (modalOpen) { if (e.key === 'Escape') closeModal(); else if (modalKey) modalKey(e); return; }
     if (mode === 'title') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startGame(); } return; }
     // 가장 최근에 누른 방향이 이기도록 Set의 끝으로 옮긴다
     if (KEYMAP[e.key]) { held.delete(KEYMAP[e.key]); held.add(KEYMAP[e.key]); tapped = KEYMAP[e.key]; path = null; pending = null; e.preventDefault(); }
@@ -929,6 +972,12 @@
     }
     const wx = sx + cam.x, wy = sy + cam.y;
     const tx = Math.floor(wx / T), ty = Math.floor(wy / T);
+    // 꽃밭 칸 클릭: 꽃이 있으면 누가 심었는지, 비어 있으면 걸어가서 심기
+    if (!scene.indoor && town.ground[ty] && town.ground[ty][tx] === 'soil') {
+      const f = garden[tx + ',' + ty];
+      if (f) return toast(flowerLabel(f), 2400);
+      return walkTo((x, y) => x === tx && y === ty, { type: 'plot', x: tx, y: ty });
+    }
     // 클릭한 대상 찾기 (그림이 타일보다 큰 전시물/NPC는 살짝 위까지 인정)
     const hit = targets().find((t) => wx >= t.x * T - 2 && wx < (t.x + t.w) * T + 2 && wy >= t.y * T - (t.type === 'npc' ? 10 : 4) && wy < (t.y + t.h) * T + 2);
     if (hit) {
@@ -978,12 +1027,14 @@
     if (p.type === 'interact') { interactWith(p.target); }
     else if (p.type === 'enter') { me.dir = 'up'; enterDoor(p.door); }
     else if (p.type === 'exit') { me.dir = 'down'; exitHouse(); }
+    else if (p.type === 'plot') { plotAction(p.x, p.y); }
   }
 
   function action() {
     if (modalOpen || fadeTo) return;
     if (dlg) return advanceDialog();
     if (me.moving) return;
+    if (!scene.indoor && town.ground[me.y][me.x] === 'soil') return plotAction(me.x, me.y);
     const t = nearby();
     if (t) return interactWith(t);
     const d = doorAhead();
@@ -996,6 +1047,9 @@
     const e = t.ref;
     if (e.action === 'guestbook') return openGuestbook();
     if (e.action === 'rating') return openRating();
+    if (e.action === 'fishing') return openFishing();
+    if (e.action === 'fishrank') return openFishRank();
+    if (e.action === 'garden') return openGardenInfo();
     if (e === summaryOf(scene) && !st.visited.includes(e.id)) afterClose = '✨ 다른 전시물에도 ! 가 켜졌어요. 둘러보세요!';
     openDoc(e.id);
     visit(e.id);
@@ -1057,6 +1111,8 @@
     toastTimer = setTimeout(() => el.classList.remove('show'), ms);
   }
   let afterClose = null;   // 문서를 닫은 뒤 보여 줄 안내
+  let modalKey = null;     // 모달이 열려 있을 때 키 입력을 받는 함수 (낚시)
+  let garden = {};         // 방문자 꽃밭: 'x,y' → { name, kind, ts }
 
   // ================================================================ 마크다운 문서
   function safeUrl(u) {
@@ -1134,6 +1190,7 @@
     $('cardBody').querySelectorAll('video').forEach((v) => v.pause());
     $('cardBody').innerHTML = '';
     modalOpen = false;
+    modalKey = null; stopFishing();
     if (afterClose) { toast(afterClose, 2600); afterClose = null; }
   }
   $('cardClose').addEventListener('click', closeModal);
@@ -1215,6 +1272,10 @@
 - 문 앞에서 **위쪽으로 걸어가면** 집에 들어가요. 나갈 때는 아래쪽 빨간 매트로!
 - 벽의 포스터, 게시판, TV, 책장을 조사하면 문서가 열려요.
 
+## 🎮 미니게임
+- **🎣 연못 낚시** — 광장 동쪽 연못의 낚시터에서 미끼(${st.costs.bait}G)로 낚시! 물고기 크기는 랜덤, 큰 물고기는 🏆 월척 랭킹에
+- **🌱 꽃 심기** — 마을 서쪽 꽃밭의 빈 칸에 ${st.costs.flower}G로 내 이름이 적힌 꽃을 심어요. 모든 방문자에게 보여요!
+
 ## 💰 G 모으기
 - 전시물을 처음 읽거나 주민과 처음 대화하면 **${st.costs.visit}G**
 - 광장의 **📮 방명록**(${st.costs.guestbook}G), **⭐ 별 동상**(${st.costs.rating}G)에서 사용해요.
@@ -1241,7 +1302,8 @@
       });
       label('📮 방명록', 16.5 * s, 13.2 * s, '#fbf1dc');
       label('⭐ 별점', 23 * s, 13.2 * s, '#fbf1dc');
-      label('🌱 밭', 7.5 * s, 14.5 * s, '#fbf1dc');
+      label('🌱 방문자 꽃밭', 7.5 * s, 14.5 * s, '#e3f7d4');
+      label('🎣 낚시터', 29.5 * s, 15 * s, '#d4f0ff');
       blob(g, (here.x + 0.5) * s, (here.y + 0.5) * s, 10, '#5b3a22'); blob(g, (here.x + 0.5) * s, (here.y + 0.5) * s, 8, '#ff2f7a');
       g.font = `bold 11px ${FONT}`; g.fillStyle = '#fff'; g.fillText('나', (here.x + 0.5) * s, (here.y + 0.5) * s + 1);
     });
@@ -1250,7 +1312,8 @@
       <div class="sub">가고 싶은 곳을 누르면 그곳까지 걸어가요. 집을 누르면 문까지 가서 바로 들어가요! (숫자 = 아직 안 본 전시물)</div>
       <div id="mapSlot"></div>
       <div class="places">${town.houses.map((h) => `<button data-house="${h.id}">${esc(h.name)}</button>`).join('')}
-        <button data-tile="17,13">📮 방명록</button><button data-tile="22,13">⭐ 별 동상</button></div>`);
+        <button data-tile="17,13">📮 방명록</button><button data-tile="22,13">⭐ 별 동상</button>
+        <button data-tile="26,15">🎣 낚시터</button><button data-tile="7,14">🌱 꽃밭</button></div>`);
     $('mapSlot').appendChild(map);
     map.addEventListener('click', (e) => {
       const r = map.getBoundingClientRect();
@@ -1262,6 +1325,171 @@
       if (b.dataset.house) { const h = town.houses.find((x) => x.id === b.dataset.house); travelToTile(h.door.x, h.door.y); }
       else { const [tx, ty] = b.dataset.tile.split(',').map(Number); travelToTile(tx, ty); }
     }));
+  }
+  // ================================================================ 미니게임: 꽃밭
+  function plotAction(x, y) {
+    const f = garden[x + ',' + y];
+    if (f) return toast(flowerLabel(f), 2400);
+    openPlant(x, y);
+  }
+  function openPlant(x, y) {
+    const cost = st.costs.flower, enough = st.points >= cost;
+    let kind = 'tulip';
+    openModal('🌱 꽃 심기', `
+      <div class="sub">씨앗 하나에 <b>💰${cost}G</b> · 내 지갑 <b>${st.points}G</b> · 심은 꽃은 마을에 오는 모든 사람에게 보여요!</div>
+      <div class="seeds" id="seeds">${Object.entries(FLOWER_INFO).map(([k, f]) => `<button data-kind="${k}" class="${k === kind ? 'on' : ''}"><span>${f.emoji}</span>${f.name}</button>`).join('')}</div>
+      <input id="plName" maxlength="12" placeholder="꽃에 붙일 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
+      <div class="msg" id="plOut">${enough ? '' : '집 안 전시물을 읽고 G를 모아 오세요!'}</div>
+      <div class="row"><button class="pink" id="plGo" ${enough ? '' : 'disabled'}>${cost}G로 심기</button></div>`);
+    $('seeds').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+      kind = b.dataset.kind;
+      $('seeds').querySelectorAll('button').forEach((o) => o.classList.toggle('on', o === b));
+    }));
+    $('plGo').addEventListener('click', async () => {
+      const name = $('plName').value.trim();
+      store.set('cvv.name', name);
+      $('plGo').disabled = true;
+      try {
+        const res = await api('/api/plant', { player: playerId, x, y, kind, name });
+        garden = res.plots; applyState(res); store.set('cvv.planted', '1');
+        afterClose = `${FLOWER_INFO[kind].emoji} ${name}님의 ${FLOWER_INFO[kind].name}을(를) 심었어요!`;
+        closeModal();
+      } catch (e) {
+        $('plOut').className = 'msg err'; $('plOut').textContent = e.message; $('plGo').disabled = false;
+        if (e.status === 409) refresh();
+      }
+    });
+  }
+  function openGardenInfo() {
+    const list = Object.values(garden).sort((a, b) => b.ts - a.ts);
+    openModal('🌱 방문자 꽃밭', `<div class="doc">${markdown(`
+# 🌱 방문자 꽃밭
+마을에 다녀간 방문자들이 심은 꽃이에요. 지금 **${list.length} / 21칸**에 꽃이 피어 있어요.
+
+## 꽃 심는 방법
+- 울타리 안 **빈 밭 칸** 위에 서서 **Space** (또는 빈 칸을 클릭)
+- 씨앗을 고르고 이름을 적으면 **${st.costs.flower}G**로 심어져요
+- 꽃 위에 서거나 꽃을 클릭하면 누가 심었는지 볼 수 있어요`)}
+      <h2>🌷 최근에 심은 꽃</h2>${list.length
+        ? '<ul>' + list.map((f) => `<li>${flowerLabel({ ...f, name: esc(f.name) })} <span style="color:var(--muted)">· ${fmtTime(f.ts)}</span></li>`).join('') + '</ul>'
+        : '<p>아직 아무도 꽃을 심지 않았어요. 첫 번째 정원사가 되어 주세요!</p>'}</div>`);
+  }
+
+  // ================================================================ 미니게임: 낚시
+  let fishAnim = null;
+  const fishTimers = [];
+  function stopFishing() {
+    if (fishAnim) cancelAnimationFrame(fishAnim);
+    fishAnim = null;
+    fishTimers.forEach(clearTimeout); fishTimers.length = 0;
+  }
+  function renderFishInfo(data) {
+    const dex = data.dex || {};
+    $('fiDex').innerHTML = data.species.map((f) => dex[f.id] != null
+      ? `<div class="fish got r-${f.rarity}"><span>${f.emoji}</span>${esc(f.name)}<small>최고 ${dex[f.id]}cm</small></div>`
+      : `<div class="fish"><span>❔</span>???<small>${f.rarity}</small></div>`).join('');
+    $('fiDexCount').textContent = `${Object.keys(dex).length} / ${data.species.length}`;
+    $('fiRank').innerHTML = data.rank.length
+      ? data.rank.slice(0, 5).map((r, i) => `<li class="${r.me ? 'me' : ''}"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b> ${esc(r.name)} — ${r.fish.emoji} ${esc(r.fish.name)} <b>${r.fish.size}cm</b></li>`).join('')
+      : '<li>아직 기록이 없어요. 첫 월척의 주인공이 되어 보세요!</li>';
+  }
+  async function openFishing() {
+    const cost = st.costs.bait;
+    openModal('🎣 연못 낚시', `
+      <div class="sub">미끼 하나에 <b>💰${cost}G</b> (물고기를 낚았을 때만 써요) · 내 지갑 <b id="fiPts">${st.points}G</b></div>
+      <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
+      <div class="fish-stage">
+        <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!</div>
+        <div class="fish-bar hidden" id="fiBar"><div class="fish-zone" id="fiZone"></div><div class="fish-marker" id="fiMark"></div></div>
+        <div id="fiResult"></div>
+        <button class="pink" id="fiGo">🎣 낚싯대 던지기</button>
+      </div>
+      <div class="doc"><h2>📖 내 물고기 도감 <small id="fiDexCount"></small></h2><div class="dex" id="fiDex">불러오는 중…</div>
+      <h2>🏆 월척 랭킹 TOP 5</h2><ol class="rank" id="fiRank"></ol></div>`);
+    api('/api/fishing?player=' + encodeURIComponent(playerId)).then(renderFishInfo).catch(() => { $('fiDex').textContent = '도감을 불러오지 못했어요.'; });
+
+    let phase = 'idle', zone = null, pos = 0;
+    const msg = (html, err) => { $('fiMsg').innerHTML = html; $('fiMsg').classList.toggle('err', !!err); };
+    const idle = (text) => {
+      stopFishing(); phase = 'idle';
+      if (text) msg(text);
+      $('fiBar').classList.add('hidden'); $('fiGo').disabled = false; $('fiGo').textContent = '🎣 다시 던지기';
+    };
+    const bite = () => {
+      phase = 'bite';
+      msg('❗ <b>입질이다!</b> 바늘이 초록 칸에 오면 Space!');
+      const w = 14 + Math.random() * 12;
+      zone = { a: Math.random() * (100 - w), w };
+      $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
+      $('fiBar').classList.remove('hidden');
+      const speed = 90 + Math.random() * 60;   // 초당 %
+      let dir = 1, last = performance.now();
+      const start = last;
+      pos = 0;
+      const step = (now) => {
+        pos += dir * speed * (now - last) / 1000; last = now;
+        if (pos > 100) { pos = 200 - pos; dir = -1; }
+        if (pos < 0) { pos = -pos; dir = 1; }
+        $('fiMark').style.left = `calc(${pos}% - 3px)`;
+        if (now - start > 3600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
+        fishAnim = requestAnimationFrame(step);
+      };
+      fishAnim = requestAnimationFrame(step);
+    };
+    const cast = () => {
+      const name = $('fiName').value.trim();
+      if (!name) return msg('랭킹에 올라갈 <b>이름</b>을 먼저 적어 주세요!', true);
+      if (st.points < cost) return msg(`G가 부족해요 (미끼 ${cost}G). 집 안 전시물을 읽고 모아 오세요!`, true);
+      store.set('cvv.name', name);
+      phase = 'wait';
+      $('fiResult').innerHTML = '';
+      $('fiGo').textContent = '🪝 당기기!';
+      msg('🌊 찌를 바라보는 중… <small>(입질이 오기 전에 당기면 도망가요)</small>');
+      fishTimers.push(setTimeout(bite, 900 + Math.random() * 2000));
+    };
+    const reel = async () => {
+      stopFishing();
+      const inside = pos >= zone.a && pos <= zone.a + zone.w;
+      if (!inside) return idle('앗, 타이밍이 빗나갔어요! 다시 던져 보세요.');
+      const accuracy = 1 - Math.abs(pos - (zone.a + zone.w / 2)) / (zone.w / 2);
+      phase = 'reel'; $('fiGo').disabled = true; msg('🎣 끌어올리는 중…');
+      try {
+        const res = await api('/api/fish', { player: playerId, name: $('fiName').value.trim(), accuracy });
+        applyState(res); store.set('cvv.fished', '1');
+        $('fiPts').textContent = res.points + 'G';
+        const f = res.fish;
+        $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
+          <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
+        renderFishInfo(res);
+        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : '낚았다! 🎉');
+      } catch (e) { idle(); msg(e.message, true); }
+    };
+    const press = () => {
+      $('fiGo').blur();
+      if (phase === 'idle') cast();
+      else if (phase === 'wait') idle('너무 일찍 당겼어요! 물고기가 놀라 도망갔어요 🐟💨');
+      else if (phase === 'bite') reel();
+    };
+    $('fiGo').addEventListener('click', press);
+    modalKey = (e) => {
+      if (e.key !== ' ' && e.key !== 'Enter') return;
+      if (document.activeElement === $('fiName') && e.key === ' ') return;   // 이름 입력 중 띄어쓰기
+      e.preventDefault();
+      press();
+    };
+  }
+  async function openFishRank() {
+    openModal('🏆 월척 랭킹 게시판', '<div class="doc"><p>불러오는 중…</p></div>');
+    try {
+      const d = await api('/api/fishing?player=' + encodeURIComponent(playerId));
+      const rows = d.rank.map((r, i) => `<tr class="${r.me ? 'me' : ''}"><td>${['🥇', '🥈', '🥉'][i] || i + 1}</td><td>${esc(r.name)}${r.me ? ' (나)' : ''}</td><td>${r.fish.emoji} ${esc(r.fish.name)}</td><td><b>${r.fish.size}cm</b></td></tr>`).join('');
+      $('cardBody').innerHTML = `<div class="doc"><h1>🏆 월척 랭킹 TOP 10</h1>
+        <p>연못에서 낚은 <b>가장 큰 물고기</b> 기준이에요. 한 사람당 최고 기록 하나만 올라가요.</p>
+        ${d.rank.length ? `<table><thead><tr><th>순위</th><th>이름</th><th>물고기</th><th>크기</th></tr></thead><tbody>${rows}</tbody></table>` : '<p>아직 기록이 없어요. 첫 월척의 주인공이 되어 보세요!</p>'}
+        <h2>🐟 이 연못에 사는 물고기</h2>
+        <ul>${d.species.map((f) => `<li>${d.dex[f.id] != null ? `${f.emoji} <b>${esc(f.name)}</b>` : '❔ ???'} — ${f.rarity}</li>`).join('')}</ul>
+        <blockquote>💡 타이밍을 정확하게 맞출수록 <b>희귀한 물고기</b>와 <b>큰 물고기</b>가 잘 잡혀요. 전설의 물고기도 있대요…!</blockquote></div>`;
+    } catch (e) { $('cardBody').innerHTML = `<div class="doc"><p class="msg err">${esc(e.message)}</p></div>`; }
   }
   $('btnMap').addEventListener('click', openMap);
   $('btnCv').addEventListener('click', openFullCv);
@@ -1347,7 +1575,11 @@
     const t = !me.moving && !fadeTo && nearby();
     const d = !me.moving && !t && doorAhead();
     const prompt = $('prompt');
-    if (t && !modalOpen) { prompt.textContent = `${t.name} · Space`; prompt.classList.add('show'); }
+    const onPlot = !scene.indoor && !me.moving && town.ground[me.y][me.x] === 'soil';
+    if (onPlot && !modalOpen) {
+      const f = garden[me.x + ',' + me.y];
+      prompt.textContent = f ? flowerLabel(f) : `🌱 빈 밭 · Space로 꽃 심기 (${st.costs.flower}G)`; prompt.classList.add('show');
+    } else if (t && !modalOpen) { prompt.textContent = `${t.name} · Space`; prompt.classList.add('show'); }
     else if (d && !modalOpen) { prompt.textContent = `🚪 ${d.house.name} 들어가기 · ↑`; prompt.classList.add('show'); }
     else if (scene.exit && me.x === scene.exit.x && me.y === scene.exit.y - 1 && !modalOpen) { prompt.textContent = '🚪 밖으로 나가기 · ↓'; prompt.classList.add('show'); }
     else prompt.classList.remove('show');
@@ -1404,12 +1636,21 @@
       ...scene.objects.filter((o) => !o.wall).map((o) => ({ y: o.sortY, draw: () => drawObject(ctx, o, time) })),
       ...scene.exhibits.filter((e) => e.y + e.h > 3).map((e) => ({ y: e.y + e.h - 1, draw: () => drawExhibit(ctx, e, time) })),
       ...scene.npcs.map((n) => ({ y: n.fy, draw: () => drawNpc(n, time) })),
+      ...(scene.indoor ? [] : Object.entries(garden).map(([k, f]) => {
+        const [fx, fy] = k.split(',').map(Number);
+        return { y: fy - 0.05, draw: () => drawFlower(fx, fy, f.kind, time) };
+      })),
       { y: my / T + 0.01, draw: () => drawMe(mx, my) },
     ].sort((a, b) => a.y - b.y);
     items.forEach((it) => it.draw());
 
     // 표지판 / 미방문 표시
     if (!scene.indoor) town.houses.forEach((h) => drawSign(h, time));
+    if (!scene.indoor) {
+      drawPost('🎣 낚시터', 27.5 * T, 14 * T + 3);
+      if (!store.get('cvv.fished')) drawBang(27.5 * T, 13 * T + 5, time);
+      if (!store.get('cvv.planted')) drawBang(8.5 * T, 10 * T + 4, time);
+    }
     (scene.zones || []).forEach(drawZoneSign);
     // 안내판을 읽기 전에는 안내판만 표시하고, 다른 전시물의 ! 는 숨긴다
     const guide = summaryUnread(scene) && summaryOf(scene);
@@ -1490,6 +1731,41 @@
     px(ctx, '#5b3a22', cx - 1, cy + 5, 3, 2);
     ctx.fillStyle = '#c2185b'; ctx.fillText(label, cx, cy);
   }
+  const FLOWER_INFO = {
+    tulip: { name: '튤립', emoji: '🌷', c: '#ff7aa8', c2: '#ffb3cd' },
+    rose: { name: '장미', emoji: '🌹', c: '#e8445a', c2: '#ff8a9a' },
+    sunflower: { name: '해바라기', emoji: '🌻', c: '#ffd23f', c2: '#8a5a36' },
+    lavender: { name: '라벤더', emoji: '💜', c: '#a97ae0', c2: '#d4bdf5' },
+    daisy: { name: '데이지', emoji: '🌼', c: '#ffffff', c2: '#ffd23f' },
+    sakura: { name: '벚꽃 묘목', emoji: '🌸', c: '#f5a9c6', c2: '#ffd3e3' },
+  };
+  const flowerLabel = (f) => { const i = FLOWER_INFO[f.kind] || FLOWER_INFO.tulip; return `${i.emoji} ${f.name}님이 심은 ${i.name}`; };
+  function drawFlower(x, y, kind, time) {
+    const X = x * T, Y = y * T, f = FLOWER_INFO[kind] || FLOWER_INFO.tulip;
+    const sway = Math.round(Math.sin(time / 500 + x * 1.7 + y) * 0.8);
+    const cx = X + 8 + sway, cy = Y + 3;
+    if (kind === 'sakura') {
+      px(ctx, '#7a4a35', X + 7, Y + 2, 2, 11); blob(ctx, cx, cy - 1, 5, f.c); blob(ctx, cx - 1, cy - 2, 3, f.c2);
+      return;
+    }
+    px(ctx, '#3f8a32', X + 7, Y + 4, 2, 9); px(ctx, '#5aa845', X + 4, Y + 8, 3, 2); px(ctx, '#5aa845', X + 9, Y + 6, 3, 2);
+    if (kind === 'sunflower') { blob(ctx, cx, cy, 4, f.c); blob(ctx, cx, cy, 2, f.c2); }
+    else if (kind === 'lavender') { for (let i = 0; i < 4; i++) px(ctx, i % 2 ? f.c2 : f.c, cx - 1, cy - 3 + i * 2, 3, 2); }
+    else if (kind === 'daisy') {
+      [[-3, 0], [3, 0], [0, -3], [0, 3]].forEach(([dx, dy]) => px(ctx, f.c, cx + dx - 1, cy + dy - 1, 3, 3));
+      px(ctx, f.c2, cx - 1, cy - 1, 3, 3);
+    } else {
+      px(ctx, f.c, cx - 3, cy - 2, 7, 5); px(ctx, f.c2, cx - 2, cy - 1, 2, 2);
+      px(ctx, f.c, cx - 3, cy - 4, 2, 2); px(ctx, f.c, cx + 2, cy - 4, 2, 2);
+      if (kind === 'rose') px(ctx, '#b82a40', cx - 1, cy, 3, 1);
+    }
+  }
+  function drawPost(text, cx, cy) {
+    ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = Math.ceil(ctx.measureText(text).width) + 8;
+    px(ctx, '#5b3a22', cx - w / 2 - 1, cy - 5, w + 2, 10); px(ctx, '#d9a46a', cx - w / 2, cy - 4, w, 8);
+    ctx.fillStyle = '#2b1a10'; ctx.fillText(text, cx, cy);
+  }
   function drawZoneSign(z) {
     const cx = (z.x0 + z.x1 + 1) / 2 * T, cy = 5;
     ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1555,6 +1831,6 @@
   (document.fonts && document.fonts.load ? document.fonts.load(`12px ${FONT}`) : Promise.resolve()).catch(() => {}).finally(() => requestAnimationFrame(loop));
 
   // 디버그/테스트용: 콘솔에서 상태 확인
-  window.__cvv = { scenes, me, get scene() { return scene; }, ALL_SPOTS, enter: (id) => enterDoor(town.doors.find((d) => d.to === id)), start: startGame,
+  window.__cvv = { scenes, me, get scene() { return scene; }, ALL_SPOTS, enter: (id) => enterDoor(town.doors.find((d) => d.to === id)), start: startGame, refresh,
     tick: (n = 20) => { for (let i = 0; i < n; i++) { const t = performance.now() + i * 50; update(0.05, t); render(t); } } };
 })();

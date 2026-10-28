@@ -24,6 +24,8 @@ CONFIG = {
     "POINTS_PER_VISIT": "10",
     "GUESTBOOK_COST": "30",
     "RATING_COST": "20",
+    "FLOWER_COST": "15",
+    "BAIT_COST": "10",
     "MEDIA_BASE": MEDIA_BASE,
     "VIDEO_URL": MEDIA_BASE + "capstone-video.mp4",
 }
