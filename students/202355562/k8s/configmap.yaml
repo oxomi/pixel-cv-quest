@@ -75,22 +75,32 @@ data:
     PLOTS = {"%d,%d" % (x, y) for x in range(4, 11) for y in range(13, 16)}
     FLOWER_KINDS = {"tulip", "rose", "sunflower", "lavender", "daisy", "sakura"}
 
-    # 연못 물고기: id, 이름, 이모지, 최소 cm, 최대 cm, 가중치, 등급
+    # 연못 생물: id, 이름, 이모지, 최소 cm, 최대 cm, 가중치, 등급
+    # 대략 흔함 68% · 보통 24% · 희귀 6% · 영웅 1.5% · 전설 0.4% (타이밍 보정 전)
     FISH = [
-        ("minnow", "피라미", "🐟", 5, 12, 40, "흔함"),
-        ("crucian", "붕어", "🐠", 10, 28, 30, "흔함"),
-        ("carp", "잉어", "🎏", 30, 75, 14, "보통"),
-        ("catfish", "메기", "🐡", 40, 95, 8, "보통"),
-        ("goldfish", "금붕어", "🌟", 6, 16, 4, "희귀"),
-        ("sakura", "벚꽃 송어", "🌸", 30, 60, 3, "희귀"),
-        ("golden", "황금 잉어", "👑", 60, 110, 0.8, "전설"),
-        ("robot", "로봇 물고기 SO-101", "🤖", 101, 101, 0.2, "전설"),
+        ("minnow", "피라미", "🐟", 5, 12, 24, "흔함"),
+        ("crucian", "붕어", "🐠", 10, 28, 20, "흔함"),
+        ("shrimp", "민물새우", "🦐", 3, 9, 14, "흔함"),
+        ("frog", "개구리", "🐸", 4, 10, 8, "흔함"),
+        ("carp", "잉어", "🎏", 30, 75, 9, "보통"),
+        ("catfish", "메기", "🐡", 40, 95, 6, "보통"),
+        ("crayfish", "가재", "🦞", 8, 16, 5, "보통"),
+        ("turtle", "자라", "🐢", 15, 35, 3, "보통"),
+        ("goldfish", "금붕어", "🌟", 6, 16, 2.5, "희귀"),
+        ("sakura", "벚꽃 송어", "🌸", 30, 60, 2, "희귀"),
+        ("rainbow", "무지개 송어", "🌈", 25, 55, 1.5, "희귀"),
+        ("jelly", "벚꽃 해파리", "🪼", 5, 20, 0.6, "영웅"),
+        ("dragon", "용 잉어", "🐉", 80, 150, 0.4, "영웅"),
+        ("shark", "연못 상어", "🦈", 120, 250, 0.5, "영웅"),
+        ("golden", "황금 잉어", "👑", 60, 110, 0.2, "전설"),
+        ("robot", "로봇 물고기 SO-101", "🤖", 101, 101, 0.08, "전설"),
+        ("grad", "학사모 물고기", "🎓", 23, 23, 0.1, "전설"),
     ]
 
 
     def roll_fish(accuracy):
         """물고기 종류와 크기를 서버에서 뽑는다. 타이밍이 정확할수록 희귀하고 큰 물고기가 잘 나온다."""
-        boost = {"희귀": 1 + 2 * accuracy, "전설": 1 + 3 * accuracy}
+        boost = {"희귀": 1 + 1.5 * accuracy, "영웅": 1 + 2 * accuracy, "전설": 1 + 2 * accuracy}
         f = random.choices(FISH, [x[5] * boost.get(x[6], 1) for x in FISH])[0]
         size = f[3] + (f[4] - f[3]) * random.random() ** (1.4 - 0.8 * accuracy)
         return {"id": f[0], "name": f[1], "emoji": f[2], "rarity": f[6], "size": round(size, 1)}
@@ -744,13 +754,14 @@ data:
       .catch .tag, .fish small { font-size: 11px; }
       .catch .tag { background: var(--paper-dark); border-radius: 4px; padding: 1px 6px; }
       .catch.r-희귀 { border-color: #a97ae0; box-shadow: 0 0 0 3px #e6d6ff; }
+      .catch.r-영웅 { border-color: #ff8a3d; box-shadow: 0 0 0 3px #ffe0c7, 0 0 12px #ffb37a; }
       .catch.r-전설 { border-color: #f2b52c; box-shadow: 0 0 0 3px #fff1b8, 0 0 18px #ffd76a; }
       .dex { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
       .dex .fish { background: #f3e6cc; border: 2px solid var(--paper-dark); border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 12px; color: var(--muted); }
       .dex .fish span { display: block; font-size: 22px; }
       .dex .fish small { display: block; }
       .dex .fish.got { background: #fffaf0; color: var(--ink); }
-      .dex .fish.r-희귀 { border-color: #a97ae0; } .dex .fish.r-전설 { border-color: #f2b52c; }
+      .dex .fish.r-희귀 { border-color: #a97ae0; } .dex .fish.r-영웅 { border-color: #ff8a3d; } .dex .fish.r-전설 { border-color: #f2b52c; }
       .rank { padding-left: 4px; list-style: none; } .rank li { margin: 4px 0; }
       .rank li.me, .doc tr.me td { background: var(--pink-light); border-radius: 4px; }
       @media (max-width: 520px) { .dex { grid-template-columns: repeat(2, 1fr); } }
@@ -2239,20 +2250,27 @@ data:
         const bite = () => {
           phase = 'bite';
           msg('❗ <b>입질이다!</b> 바늘이 초록 칸에 오면 Space!');
-          const w = 14 + Math.random() * 12;
+          const w = 7 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
           zone = { a: Math.random() * (100 - w), w };
           $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
           $('fiBar').classList.remove('hidden');
-          const speed = 90 + Math.random() * 60;   // 초당 %
-          let dir = 1, last = performance.now();
+          let speed = 150 + Math.random() * 90;   // 초당 %
+          let dir = Math.random() < 0.5 ? 1 : -1, last = performance.now();
           const start = last;
-          pos = 0;
+          let jolt = start + 350 + Math.random() * 500;
+          pos = Math.random() * 100;
           const step = (now) => {
+            // 물고기가 버둥거리듯 가끔 방향을 틀거나 속도가 바뀐다
+            if (now > jolt) {
+              if (Math.random() < 0.5) dir = -dir;
+              speed = 140 + Math.random() * 120;
+              jolt = now + 300 + Math.random() * 600;
+            }
             pos += dir * speed * (now - last) / 1000; last = now;
             if (pos > 100) { pos = 200 - pos; dir = -1; }
             if (pos < 0) { pos = -pos; dir = 1; }
             $('fiMark').style.left = `calc(${pos}% - 3px)`;
-            if (now - start > 3600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
+            if (now - start > 2600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
             fishAnim = requestAnimationFrame(step);
           };
           fishAnim = requestAnimationFrame(step);
@@ -2282,7 +2300,7 @@ data:
             $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
               <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
             renderFishInfo(res);
-            idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : '낚았다! 🎉');
+            idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 대물이다!!' : '낚았다! 🎉');
           } catch (e) { idle(); msg(e.message, true); }
         };
         const press = () => {
@@ -2728,7 +2746,7 @@ data:
     ## 🎮 G로 즐기는 미니게임
     | 장소 | 놀이 | 비용 |
     |---|---|---|
-    | 🎣 광장 동쪽 **연못 낚시터** | 타이밍 낚시 — 물고기 8종 도감 모으기, 🏆 **월척 랭킹** 도전 | 미끼 10G |
+    | 🎣 광장 동쪽 **연못 낚시터** | 타이밍 낚시 — 연못 생물 17종 도감 모으기, 🏆 **월척 랭킹** 도전 | 미끼 10G |
     | 🌱 마을 서쪽 **방문자 꽃밭** | 내 이름이 적힌 꽃 심기 — 다른 방문자들에게도 보여요 | 씨앗 15G |
 
     길을 잃으면 **M** 키로 지도를 열어 보세요!

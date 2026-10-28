@@ -1418,20 +1418,27 @@
     const bite = () => {
       phase = 'bite';
       msg('❗ <b>입질이다!</b> 바늘이 초록 칸에 오면 Space!');
-      const w = 14 + Math.random() * 12;
+      const w = 7 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
       zone = { a: Math.random() * (100 - w), w };
       $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
       $('fiBar').classList.remove('hidden');
-      const speed = 90 + Math.random() * 60;   // 초당 %
-      let dir = 1, last = performance.now();
+      let speed = 150 + Math.random() * 90;   // 초당 %
+      let dir = Math.random() < 0.5 ? 1 : -1, last = performance.now();
       const start = last;
-      pos = 0;
+      let jolt = start + 350 + Math.random() * 500;
+      pos = Math.random() * 100;
       const step = (now) => {
+        // 물고기가 버둥거리듯 가끔 방향을 틀거나 속도가 바뀐다
+        if (now > jolt) {
+          if (Math.random() < 0.5) dir = -dir;
+          speed = 140 + Math.random() * 120;
+          jolt = now + 300 + Math.random() * 600;
+        }
         pos += dir * speed * (now - last) / 1000; last = now;
         if (pos > 100) { pos = 200 - pos; dir = -1; }
         if (pos < 0) { pos = -pos; dir = 1; }
         $('fiMark').style.left = `calc(${pos}% - 3px)`;
-        if (now - start > 3600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
+        if (now - start > 2600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
         fishAnim = requestAnimationFrame(step);
       };
       fishAnim = requestAnimationFrame(step);
@@ -1461,7 +1468,7 @@
         $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
           <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
         renderFishInfo(res);
-        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : '낚았다! 🎉');
+        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 대물이다!!' : '낚았다! 🎉');
       } catch (e) { idle(); msg(e.message, true); }
     };
     const press = () => {
