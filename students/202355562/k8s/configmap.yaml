@@ -2219,7 +2219,7 @@ data:
     ## 대표 프로젝트
     - **[kidzania-family](https://github.com/kidzania-family)** — 🏆 졸업과제: LeRobot SO-101 로봇팔 제어 (피지컬 AI 트랙 성능 1위)
     - **[PNUSW-2025-OnGi-10](https://github.com/oxomi/PNUSW-2025-OnGi-10)** — 🥈 해커톤 2등, 가족 건강 소통 앱 *온기* (백엔드)
-    - **[ComTogether](https://github.com/ApptiveDev/ComTogether)** — AI 기반 PC 부품 호환성 분석 & 전문가 상담 (백엔드)
+    - **[ComTogether](https://github.com/ApptiveDev/ComTogether)** — AI 기반 PC 부품 호환성 분석 & 전문가 상담 (APPTIVE · 백엔드)
     - **[PPP](https://github.com/PNU-PPP/PPP)** — PNU 학사 도우미 앱 *피플플*
     - **[PraisePrisonApp](https://github.com/oxomi/PraisePrisonApp)** — 칭찬감옥: 나를 칭찬하는 SNS 일기 앱 (Kotlin)
     - **[PNUin](https://github.com/oxomi/PNUin)** — 웹응용프로그래밍 텀프로젝트 (Node.js, Express)
@@ -2433,7 +2433,7 @@ data:
     ## 프로젝트 요약
     | 프로젝트 | 한 줄 요약 | 역할 · 기술 |
     |---|---|---|
-    | 💻 [ComTogether](https://github.com/ApptiveDev/ComTogether) | AI로 PC 부품 호환성을 분석하고 전문가 상담을 연결 | **백엔드** · Gemini API, 비동기 처리, AWS CI/CD |
+    | 💻 [ComTogether](https://github.com/ApptiveDev/ComTogether) | AI로 PC 부품 호환성을 분석하고 전문가 상담을 연결 (APPTIVE) | **백엔드** · Gemini API, 비동기 처리, AWS CI/CD |
     | 📱 [PPlusPlus](https://github.com/PNU-PPP/PPP) | 부산대 공지·학사 정보를 모은 학사 도우미 앱 | 크롤링 데이터 수집 · Java, Node.js, FCM |
     | 😇 [칭찬감옥](https://github.com/oxomi/PraisePrisonApp) | 나를 칭찬하는 SNS 일기 앱 | Kotlin · KLUE-BERT 감성 분석 |
     | 🌐 [PNUin](https://github.com/oxomi/PNUin) | 웹응용프로그래밍 텀프로젝트 | Node.js · Express |
@@ -2471,7 +2471,7 @@ data:
     ### AI 기반 PC 부품 호환성 분석 & 전문가 상담 시스템
     > 세상의 컴알못이 사라질 때까지!
 
-    **역할: 백엔드** · APPTIVE 동아리 팀 프로젝트
+    **역할: 백엔드** · IT 서비스 동아리 **APPTIVE**에서 진행한 팀 프로젝트 (2025)
 
     ## 서비스
     - 초보자를 위한 **단계별 PC 조립 가이드**와 용어 사전
@@ -2575,9 +2575,11 @@ data:
     |---|---|---|
     | 2023-2학기 – 2024-2학기 | 🔐 **Keeper** (정보보안 동아리) | **부회장** |
     | 2025-1, 2학기 | 🤖 **AID** (인공지능 동아리) | 부원 |
-    | 2025-1, 2학기 | 📱 **APPTIVE** (IT 서비스 동아리) | 부원 · **백엔드 트랙** — [ComTogether](https://github.com/ApptiveDev/ComTogether) 개발 |
+    | 2025-1, 2학기 | 📱 **APPTIVE** (IT 서비스 동아리) | 부원 · **백엔드 트랙** |
 
     > 보안에서 시작해 AI와 서비스 개발까지, 관심 있는 분야를 동아리로 직접 부딪혀 보며 넓혀 왔어요.
+
+    APPTIVE에서 만든 팀 프로젝트 **ComTogether**는 🔧 프로젝트 공방에 다른 프로젝트들과 함께 있어요.
     `,
       },
       dcc_intro: {
