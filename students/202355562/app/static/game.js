@@ -407,7 +407,7 @@
     ex({ id: 'home_profile', kind: 'portrait', name: '🌸 자기소개 액자', x: 2, y: 1, w: 2, h: 2 });
     ex({ id: 'home_skills', kind: 'shelf', name: '📚 기술 책장', x: 10, y: 1, w: 2, h: 3 });
     ex({ id: 'home_github', kind: 'desk', name: '💻 소미의 컴퓨터', x: 5, y: 2, w: 2, h: 2 });
-    ex({ id: 'home_summary', kind: 'lectern', name: '📖 옥소미 한눈에 보기 (안내판)', x: 7, y: 4, w: 1, h: 2 });
+    ex({ id: 'home_summary', kind: 'lectern', name: '📖 소미의 집 안내판', x: 7, y: 4, w: 1, h: 2 });
     deco({ kind: 'bed', x: 12, y: 4, w: 2, h: 2, sortY: 5 });
     deco({ kind: 'plant', x: 1, y: 3 }); deco({ kind: 'plant', x: 13, y: 7 });
     deco({ kind: 'table', x: 2, y: 6 }); deco({ kind: 'window', x: 7, y: 1, solid: false, wall: true });
