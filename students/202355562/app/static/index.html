@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소미의 CV 밸리</title>
+<meta name="description" content="마을을 걸어 다니며 집 안의 포스터와 게시판으로 옥소미의 이력을 탐험하는 픽셀 RPG">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<style>
+  :root {
+    --wood: #8a5a36; --wood-dark: #5b3a22; --wood-light: #b98352; --paper: #fbf1dc; --paper-dark: #efdcb8;
+    --ink: #4a2e1c; --muted: #8b6a50; --pink: #f08cb0; --pink-dark: #d8668f; --pink-light: #ffd3e3;
+    --gold: #ffcf4a; --green: #5aa845; --bg: #2a1d27;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body { min-height: 100vh; display: flex; justify-content: center; padding: 12px 16px 20px; color: var(--ink);
+    font-family: "Galmuri11", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  .wrap { width: 100%; max-width: 1100px; }
+  .stage { position: relative; border: 6px solid var(--wood-dark); border-radius: 10px; overflow: hidden; background: #000;
+    box-shadow: 0 0 0 3px var(--wood-light) inset, 0 10px 0 rgba(0,0,0,.35); }
+  canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; touch-action: none; cursor: pointer; }
+
+  /* 우드 패널 공통 */
+  .panel { background: var(--paper); border: 4px solid var(--wood-dark); border-radius: 6px;
+    box-shadow: 0 0 0 3px var(--wood-light) inset, 0 0 0 2px var(--wood-dark), 0 4px 0 2px rgba(0,0,0,.35); }
+  button { font: inherit; cursor: pointer; color: var(--ink); background: var(--paper); border: 3px solid var(--wood-dark);
+    border-radius: 5px; padding: 6px 12px; font-size: 14px; box-shadow: inset 0 -3px 0 var(--paper-dark); }
+  button:hover:not(:disabled) { background: #fff7e8; }
+  button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.pink { background: var(--pink); color: #fff; box-shadow: inset 0 -3px 0 var(--pink-dark); text-shadow: 1px 1px 0 var(--pink-dark); }
+  button.pink:hover:not(:disabled) { background: #f6a1c0; }
+
+  /* HUD */
+  .hud { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; pointer-events: none; }
+  .hud .box { pointer-events: auto; padding: 6px 12px; font-size: clamp(11px, 1.5vw, 15px); display: flex; gap: 12px; align-items: center; }
+  .hud .place { font-weight: 700; color: var(--pink-dark); }
+  .hud .gold { color: #b07800; font-weight: 700; }
+  .hud .btns { display: flex; gap: 6px; pointer-events: auto; }
+  .hud .btns button { padding: 4px 9px; font-size: 13px; }
+  .hidden { display: none !important; }
+  @media (max-width: 600px) {
+    .hud { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 6px; background: var(--wood-dark); }
+    .hud .box { font-size: 11px; gap: 8px; padding: 4px 8px; }
+    .dialog .who { width: 30%; }
+    .dialog .next { right: calc(30% + 10px); }
+  }
+
+  .prompt { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 5px 12px; font-size: clamp(11px, 1.5vw, 14px);
+    pointer-events: none; opacity: 0; transition: opacity .15s; white-space: nowrap; }
+  .prompt.show { opacity: 1; }
+  .toast { position: absolute; left: 50%; top: 14%; transform: translate(-50%, 0); padding: 7px 16px; font-size: clamp(13px, 1.8vw, 17px);
+    color: #b07800; pointer-events: none; opacity: 0; transition: opacity .2s, transform .2s; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translate(-50%, -8px); }
+
+  /* 대화창 (초상화 포함) */
+  .dialog { position: absolute; left: 2%; right: 2%; bottom: 3%; display: none; cursor: pointer; min-height: 30%; padding: 0; }
+  .dialog.show { display: flex; }
+  .dialog .text { flex: 1; padding: 14px 18px; font-size: clamp(13px, 2vw, 19px); line-height: 1.7; white-space: pre-line; }
+  .dialog .who { width: 24%; max-width: 170px; border-left: 4px solid var(--wood-dark); display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 6px; padding: 10px; background: var(--paper-dark); }
+  .dialog .who canvas { width: 70%; max-width: 96px; image-rendering: pixelated; background: #f9e7c4; border: 3px solid var(--wood); border-radius: 4px; cursor: inherit; }
+  .dialog .who .name { font-size: clamp(11px, 1.6vw, 15px); font-weight: 700; background: var(--paper); border: 2px solid var(--wood); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+  .dialog .next { position: absolute; right: calc(24% + 14px); bottom: 8px; color: var(--pink-dark); animation: bob .7s steps(2) infinite; }
+  @media (min-width: 720px) { .dialog .next { right: calc(min(24%, 170px) + 14px); } }
+  @keyframes bob { 50% { transform: translateY(3px); } }
+
+  /* 타이틀 */
+  .title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2%; text-align: center; }
+  .logo { font-family: "Galmuri14", "Galmuri11", sans-serif; font-size: clamp(30px, 7.5vw, 86px); line-height: 1.05; color: #fff;
+    text-shadow: 0 4px 0 var(--pink-dark), 4px 0 0 var(--wood-dark), -4px 0 0 var(--wood-dark), 0 -4px 0 var(--wood-dark), 0 8px 0 var(--wood-dark),
+      4px 4px 0 var(--wood-dark), -4px 4px 0 var(--wood-dark), 4px 8px 0 var(--wood-dark), -4px 8px 0 var(--wood-dark);
+    animation: float 2.4s ease-in-out infinite; }
+  .logo .pink { color: var(--pink-light); }
+  .logo small { display: block; font-family: "Galmuri11", sans-serif; font-size: 32%; letter-spacing: 3px; margin-top: 10px; color: var(--gold);
+    text-shadow: 2px 2px 0 var(--wood-dark), -2px 2px 0 var(--wood-dark), 2px -2px 0 var(--wood-dark), -2px -2px 0 var(--wood-dark); }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+  .title .menu { display: flex; gap: 12px; margin-top: 3%; flex-wrap: wrap; justify-content: center; }
+  .title .menu button { font-size: clamp(13px, 2vw, 20px); padding: 9px 20px; }
+  .title .press { color: #fff; font-size: clamp(11px, 1.6vw, 15px); text-shadow: 2px 2px 0 var(--wood-dark); animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  /* 모바일 조작 */
+  .controls { display: none; justify-content: space-between; align-items: center; margin-top: 12px; user-select: none; touch-action: none; }
+  .pad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 4px; }
+  .pad button, .abtn { font-size: 20px; padding: 0; touch-action: none; }
+  .abtn { width: 78px; height: 78px; border-radius: 50%; }
+  @media (pointer: coarse) { .controls { display: flex; } }
+  .hint { color: #e9cfe0; font-size: 12px; margin-top: 10px; text-align: center; line-height: 1.6; }
+
+  /* 문서 / 모달 */
+  .modal { position: fixed; inset: 0; background: rgba(30,16,24,.65); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .modal.show { display: flex; }
+  .card { width: 100%; max-width: 720px; max-height: 90vh; display: flex; flex-direction: column; }
+  .card .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: var(--wood);
+    color: #fff; font-size: 16px; text-shadow: 2px 2px 0 var(--wood-dark); border-bottom: 4px solid var(--wood-dark); }
+  .card .head button { padding: 2px 10px; }
+  .card .body { overflow-y: auto; overflow-x: hidden; padding: 18px 22px 22px; }
+  .doc { font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; font-size: 15px; line-height: 1.75; color: #3d2a1e; }
+  .doc h1, .doc h2, .doc h3 { font-family: "Galmuri11", sans-serif; color: var(--ink); line-height: 1.4; }
+  .doc h1 { font-size: 22px; margin: 4px 0 12px; color: var(--pink-dark); }
+  .doc h2 { font-size: 17px; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 2px dashed var(--paper-dark); }
+  .doc h3 { font-size: 15px; margin: 16px 0 6px; }
+  .doc p { margin: 8px 0; }
+  .doc ul, .doc ol { margin: 6px 0; padding-left: 22px; }
+  .doc li { margin: 3px 0; }
+  .doc strong { color: #8a3d5c; }
+  .doc a { color: #c2185b; text-underline-offset: 3px; }
+  .doc code { background: #f3e2c2; border-radius: 4px; padding: 1px 6px; font-size: 13px; font-family: "GalmuriMono11", Consolas, monospace; }
+  .doc pre { background: #3b2a22; color: #fbe9d0; padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: 12px; line-height: 1.5; }
+  .doc pre code { background: none; padding: 0; color: inherit; }
+  .doc blockquote { margin: 12px 0; padding: 8px 14px; background: #fde7ef; border-left: 5px solid var(--pink); border-radius: 0 6px 6px 0; }
+  .doc hr { border: none; border-top: 2px dashed var(--paper-dark); margin: 18px 0; }
+  .doc table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; display: block; overflow-x: auto; }
+  .doc th, .doc td { border: 2px solid var(--paper-dark); padding: 6px 10px; text-align: left; vertical-align: top; }
+  .doc th { background: #f6e3c3; font-weight: 700; white-space: nowrap; }
+  .doc img { max-width: 100%; border-radius: 6px; border: 3px solid var(--paper-dark); display: block; margin: 8px auto; }
+  .doc video, .doc iframe { width: 100%; aspect-ratio: 16/9; border: 3px solid var(--wood-dark); border-radius: 6px; background: #000; }
+  .doc .part { margin-top: 26px; padding-top: 8px; border-top: 4px double var(--paper-dark); }
+
+  input, textarea { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: #fffaf0; border: 3px solid var(--wood-light);
+    border-radius: 5px; padding: 8px; margin-top: 8px; }
+  textarea { resize: vertical; min-height: 72px; font-family: "Pretendard", "Malgun Gothic", sans-serif; }
+  .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .msg.err { color: #c62828; } .msg.ok { color: #2e7d32; }
+  .entries { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+  .entries li { background: #fffaf0; border: 2px solid var(--paper-dark); border-radius: 6px; padding: 8px 12px; font-size: 14px;
+    overflow-wrap: anywhere; font-family: "Pretendard", "Malgun Gothic", sans-serif; }
+  .entries .who { color: var(--pink-dark); font-weight: 700; margin-right: 6px; font-family: "Galmuri11", sans-serif; }
+  .entries .when { color: var(--muted); font-size: 11px; float: right; }
+  .stars { display: flex; gap: 6px; justify-content: center; margin: 16px 0 6px; }
+  .stars button { font-size: 34px; background: none; border: none; box-shadow: none; color: #d9c7a6; padding: 2px; }
+  .stars button.on { color: #ffb300; text-shadow: 2px 2px 0 var(--wood-dark); }
+  .big { text-align: center; font-size: 15px; }
+  .bigmap { width: 100%; height: auto; image-rendering: pixelated; border: 4px solid var(--wood-dark); border-radius: 6px; cursor: pointer; display: block; }
+  .places { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .places button { font-size: 13px; padding: 5px 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage">
+    <canvas id="game" aria-label="소미의 CV 밸리 게임 화면"></canvas>
+
+    <div class="title" id="title">
+      <div class="logo"><span class="pink">소미의</span> CV 밸리<small>~ SOMI'S CV VALLEY ~</small></div>
+      <div class="menu">
+        <button class="pink" id="btnStart">▶ 마을로 들어가기</button>
+        <button id="btnQuickCv">📜 CV 바로 보기</button>
+      </div>
+      <div class="press">Enter / Space 를 눌러 시작</div>
+    </div>
+
+    <div class="hud hidden" id="hud">
+      <div class="panel box">
+        <span class="place" id="hudPlace">광장</span>
+        <span class="gold">💰 <span id="hudPoints">0</span>G</span>
+        <span>📜 <span id="hudFound">0</span>/<span id="hudTotal">0</span></span>
+        <span>⭐ <span id="hudRating">-</span></span>
+      </div>
+      <div class="btns">
+        <button id="btnMap">🗺️ 지도</button>
+        <button id="btnCv">📜 CV 전체</button>
+        <button id="btnHelp">❓</button>
+      </div>
+      <div class="panel box hidden" id="hudOffline" style="color:#c62828">서버 연결 끊김</div>
+    </div>
+
+    <div class="panel prompt" id="prompt"></div>
+    <div class="panel toast" id="toast"></div>
+    <div class="panel dialog" id="dialog" role="dialog" aria-live="polite">
+      <div class="text" id="dlgText"></div>
+      <div class="next">▼</div>
+      <div class="who"><canvas id="portrait" width="16" height="24"></canvas><div class="name" id="dlgName"></div></div>
+    </div>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="pad">
+      <span></span><button data-dir="up" aria-label="위">▲</button><span></span>
+      <button data-dir="left" aria-label="왼쪽">◀</button><span></span><button data-dir="right" aria-label="오른쪽">▶</button>
+      <span></span><button data-dir="down" aria-label="아래">▼</button><span></span>
+    </div>
+    <button class="abtn pink" id="btnA" aria-label="확인">A</button>
+  </div>
+
+  <p class="hint">← ↑ → ↓ / WASD 이동 · Space / Enter 대화·조사 · M 지도 · 마우스로 클릭하면 그곳까지 걸어가요<br>
+    집에 들어가 포스터와 게시판을 읽으면 💰G를 받아요. G로 광장에서 📮방명록과 ⭐별점을 남겨 주세요!</p>
+</div>
+
+<div class="modal" id="modal"><div class="panel card"><div class="head"><span id="cardTitle"></span><button id="cardClose">✕</button></div><div class="body" id="cardBody"></div></div></div>
+
+<script src="content.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

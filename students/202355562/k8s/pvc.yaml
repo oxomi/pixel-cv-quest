@@ -1,0 +1,15 @@
+# Redis 데이터(포인트, 방명록, 별점)를 Pod 재시작/재배포 후에도 유지하기 위한 영구 볼륨 요청
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pixel-cv-redis-data
+  labels:
+    app: pixel-cv
+    component: redis
+    app.kubernetes.io/part-of: pixel-cv
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

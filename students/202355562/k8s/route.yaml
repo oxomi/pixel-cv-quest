@@ -1,0 +1,18 @@
+# 외부 HTTPS 주소로 웹 Service를 공개 (host는 비워 두면 OpenShift가 자동 생성)
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: pixel-cv
+  labels:
+    app: pixel-cv
+    component: web
+    app.kubernetes.io/part-of: pixel-cv
+spec:
+  to:
+    kind: Service
+    name: pixel-cv-web
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
