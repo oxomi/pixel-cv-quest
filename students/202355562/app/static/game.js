@@ -436,10 +436,11 @@
     ex({ id: 'ws_praise', kind: 'poster', variant: 'heart', color: '#f08cb0', name: '😇 칭찬감옥 포스터', x: 2, y: 1, w: 2, h: 2 });
     ex({ id: 'ws_pnu', kind: 'cork', name: '📱 PNU 학사 도우미 게시판', x: 6, y: 1, w: 3, h: 2 });
     ex({ id: 'ws_pnuin', kind: 'poster', variant: 'web', color: '#7b5cd6', name: '🌐 PNUin 포스터', x: 11, y: 1, w: 2, h: 2 });
-    ex({ id: 'ws_pc', kind: 'desk', name: '💻 PC 호환성 시스템 컴퓨터', x: 3, y: 4, w: 2, h: 2 });
-    ex({ id: 'ws_db', kind: 'laptop', name: '🌱 DB 설계 노트북', x: 9, y: 4, w: 2, h: 2 });
+    // 메인 안내판 주변은 비워 두고, 작은 프로젝트들은 방 양쪽 끝으로
+    ex({ id: 'ws_pc', kind: 'desk', name: '💻 ComTogether 컴퓨터', x: 1, y: 5, w: 2, h: 2 });
+    ex({ id: 'ws_db', kind: 'laptop', name: '🌱 탄소중립 SCM 노트북', x: 12, y: 5, w: 2, h: 2 });
     ex({ id: 'ws_summary', kind: 'lectern', name: '📖 프로젝트 공방 안내판', x: 7, y: 4, w: 1, h: 2 });
-    deco({ kind: 'crate', x: 13, y: 3 }); deco({ kind: 'crate', x: 13, y: 4 }); deco({ kind: 'plant', x: 1, y: 7 });
+    deco({ kind: 'crate', x: 13, y: 3 }); deco({ kind: 'crate', x: 13, y: 4 }); deco({ kind: 'plant', x: 1, y: 8 }); deco({ kind: 'plant', x: 13, y: 8 });
   });
   // 대외활동 센터: 왼쪽 데이터 크리에이터 캠프 / 가운데 동아리 / 오른쪽 해커톤 — 구역마다 벽지·바닥이 다르다
   interior('observatory', '대외활동 센터', '#efe3c8', '#e5d5b3', '#c2955f', '#b08451', (ex, deco, sc) => {
@@ -963,9 +964,14 @@
     const e = t.ref;
     if (e.action === 'guestbook') return openGuestbook();
     if (e.action === 'rating') return openRating();
+    if (e === summaryOf(scene) && !st.visited.includes(e.id)) afterClose = '✨ 다른 전시물에도 ! 가 켜졌어요. 둘러보세요!';
     openDoc(e.id);
     visit(e.id);
   }
+
+  // 방마다 가운데에 있는 요약 안내판 (캡스톤 홀은 트로피)
+  const summaryOf = (sc) => sc.indoor && sc.exhibits.find((e) => e.kind === 'lectern' || e.id === 'cap_trophy');
+  const summaryUnread = (sc) => { const s = summaryOf(sc); return !!s && !st.visited.includes(s.id); };
 
   // ================================================================ 장면 전환
   function transition(fn) { fadeTo = fn; }
@@ -975,6 +981,7 @@
       me.x = me.fromX = scene.exit.x; me.y = me.fromY = scene.exit.y - 1; me.dir = 'up';
       scene.returnTo = { x: d.x, y: d.y + 1 };
       setPlace();
+      if (summaryUnread(scene)) setTimeout(() => toast('📖 먼저 방 가운데 안내판부터 읽어 보세요!', 2600), 350);
     });
   }
   function exitHouse(then) {
@@ -1011,12 +1018,13 @@
   }
 
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms = 1700) {
     const el = $('toast');
     el.textContent = msg; el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 1700);
+    toastTimer = setTimeout(() => el.classList.remove('show'), ms);
   }
+  let afterClose = null;   // 문서를 닫은 뒤 보여 줄 안내
 
   // ================================================================ 마크다운 문서
   function safeUrl(u) {
@@ -1025,7 +1033,7 @@
   }
   function inline(s) {
     return esc(s)
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, a, u) => `<img alt="${a}" src="${safeUrl(u)}" loading="lazy">`)
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, a, u) => `<img alt="${a}" src="${safeUrl(u)}" loading="lazy"${a === '증명사진' ? ' class="profile"' : ''}>`)
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, u) => `<a href="${safeUrl(u)}" target="_blank" rel="noopener">${t}</a>`)
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
@@ -1094,6 +1102,7 @@
     $('cardBody').querySelectorAll('video').forEach((v) => v.pause());
     $('cardBody').innerHTML = '';
     modalOpen = false;
+    if (afterClose) { toast(afterClose, 2600); afterClose = null; }
   }
   $('cardClose').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
@@ -1368,7 +1377,10 @@
     // 표지판 / 미방문 표시
     if (!scene.indoor) town.houses.forEach((h) => drawSign(h, time));
     (scene.zones || []).forEach(drawZoneSign);
-    scene.exhibits.forEach((e) => { if (!e.action && !st.visited.includes(e.id)) drawBang(e.x * T + e.w * T / 2, (e.kind === 'trophy' || e.kind === 'telescope' || e.kind === 'lectern' ? e.y * T - 4 : e.y * T + (e.y < 3 ? 2 : -2)), time); });
+    // 안내판을 읽기 전에는 안내판만 표시하고, 다른 전시물의 ! 는 숨긴다
+    const guide = summaryUnread(scene) && summaryOf(scene);
+    if (guide) drawGuide(guide, time);
+    scene.exhibits.forEach((e) => { if (guide) return; if (!e.action && !st.visited.includes(e.id)) drawBang(e.x * T + e.w * T / 2, (e.kind === 'trophy' || e.kind === 'telescope' || e.kind === 'lectern' ? e.y * T - 4 : e.y * T + (e.y < 3 ? 2 : -2)), time); });
     scene.npcs.forEach((n) => { if (!st.visited.includes(n.id)) drawBang(n.fx * T + 8, n.fy * T + (n.sprite === 'cat' ? -2 : -14), time); });
 
     ctx.setTransform(S, 0, 0, S, 0, 0);
@@ -1415,6 +1427,25 @@
     x = Math.round(x);
     px(ctx, '#5b3a22', x - 3, by - 7, 7, 10); px(ctx, '#ffd23f', x - 2, by - 6, 5, 8);
     px(ctx, '#5b3a22', x - 1, by - 5, 2, 4); px(ctx, '#5b3a22', x - 1, by, 2, 1);
+  }
+  // 문 매트 → 안내판까지 반짝이는 발자국 + "여기부터!" 말풍선
+  function drawGuide(g, time) {
+    const x = scene.exit.x * T, top = g.y + g.h, step = Math.floor(time / 220);
+    for (let ty = scene.exit.y - 1, i = 0; ty >= top; ty--, i++) {
+      const on = (step - i) % 4;
+      ctx.globalAlpha = on === 0 ? 1 : on === 1 ? 0.7 : 0.4;
+      [[3, 8], [9, 2]].forEach(([fx, fy]) => {
+        px(ctx, '#5b3a22', x + fx - 1, ty * T + fy - 1, 6, 7);
+        px(ctx, '#ff8fb8', x + fx, ty * T + fy, 4, 5); px(ctx, '#fff3f7', x + fx + 1, ty * T + fy + 1, 2, 2);
+      });
+    }
+    ctx.globalAlpha = 1;
+    const cx = (g.x + g.w / 2) * T, cy = g.y * T - 9 + Math.sin(time / 220) * 1.5;
+    ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const label = '📖 여기부터!', w = Math.ceil(ctx.measureText(label).width) + 8;
+    px(ctx, '#5b3a22', cx - w / 2 - 1, cy - 6, w + 2, 11); px(ctx, '#fff3f7', cx - w / 2, cy - 5, w, 9);
+    px(ctx, '#5b3a22', cx - 1, cy + 5, 3, 2);
+    ctx.fillStyle = '#c2185b'; ctx.fillText(label, cx, cy);
   }
   function drawZoneSign(z) {
     const cx = (z.x0 + z.x1 + 1) / 2 * T, cy = 5;
