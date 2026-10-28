@@ -24,6 +24,7 @@ GUESTBOOK_COST = int(os.environ.get("GUESTBOOK_COST", "30"))
 RATING_COST = int(os.environ.get("RATING_COST", "20"))
 SPOT_IDS = set(os.environ.get("SPOT_IDS", ",".join([
     "guide", "senior", "teammate", "mc", "scientist", "cat",
+    "home_summary", "ws_summary", "ext_summary", "clubs",
     "home_profile", "home_skills", "home_github", "lab_intro", "lab_isaac", "lab_ros", "lab_vla",
     "cap_trophy", "cap_poster", "cap_data", "cap_policy", "cap_video",
     "ws_ongi", "ws_pc", "ws_praise", "ws_pnu", "ws_pnuin", "ws_db", "dcc_intro", "dcc_seg", "dcc_chimney",

@@ -407,6 +407,7 @@
     ex({ id: 'home_profile', kind: 'portrait', name: '🌸 자기소개 액자', x: 2, y: 1, w: 2, h: 2 });
     ex({ id: 'home_skills', kind: 'shelf', name: '📚 기술 책장', x: 10, y: 1, w: 2, h: 3 });
     ex({ id: 'home_github', kind: 'desk', name: '💻 소미의 컴퓨터', x: 5, y: 2, w: 2, h: 2 });
+    ex({ id: 'home_summary', kind: 'lectern', name: '📖 옥소미 한눈에 보기 (안내판)', x: 7, y: 4, w: 1, h: 2 });
     deco({ kind: 'bed', x: 12, y: 4, w: 2, h: 2, sortY: 5 });
     deco({ kind: 'plant', x: 1, y: 3 }); deco({ kind: 'plant', x: 13, y: 7 });
     deco({ kind: 'table', x: 2, y: 6 }); deco({ kind: 'window', x: 7, y: 1, solid: false, wall: true });
@@ -414,9 +415,9 @@
   interior('lab', 'DTPLab 연구실', '#cfe0ea', '#bdd3e0', '#b9b1a6', '#a69d91', (ex, deco, sc) => {
     sc.rug = { x: 5, y: 6, w: 5, h: 2, c: '#7aa6c8', c2: '#a8c8e2' };
     ex({ id: 'lab_isaac', kind: 'poster', variant: 'robot', color: '#4f8dd9', name: '🧪 Isaac Sim 강화학습 포스터', x: 2, y: 1, w: 2, h: 2 });
-    ex({ id: 'lab_intro', kind: 'whiteboard', name: '🔬 연구실 화이트보드', x: 6, y: 1, w: 3, h: 2 });
+    ex({ id: 'lab_vla', kind: 'whiteboard', name: '📊 SO-101 모델 비교 화이트보드', x: 6, y: 1, w: 3, h: 2 });
     ex({ id: 'lab_ros', kind: 'poster', variant: 'net', color: '#5ab06a', name: '📡 ROS 시스템 포스터', x: 11, y: 1, w: 2, h: 2 });
-    ex({ id: 'lab_vla', kind: 'desk', name: '🖥️ 모델 비교 모니터', x: 6, y: 4, w: 2, h: 2 });
+    ex({ id: 'lab_intro', kind: 'lectern', name: '📖 DTPLab 연구실 안내판', x: 7, y: 4, w: 1, h: 2 });
     deco({ kind: 'rack', x: 13, y: 3 }); deco({ kind: 'rack', x: 1, y: 3 });
     deco({ kind: 'plant', x: 13, y: 7 }); deco({ kind: 'robotdog', x: 10, y: 6 });
   });
@@ -425,7 +426,7 @@
     ex({ id: 'cap_poster', kind: 'bigposter', name: '🖼️ 졸업과제 포스터', x: 1, y: 0, w: 2, h: 3 });
     ex({ id: 'cap_data', kind: 'whiteboard', name: '📊 데이터 이야기 화이트보드', x: 5, y: 1, w: 3, h: 2 });
     ex({ id: 'cap_video', kind: 'tv', name: '📺 발표 영상 TV', x: 10, y: 2, w: 2, h: 2 });
-    ex({ id: 'cap_trophy', kind: 'trophy', name: '🏆 1위 트로피', x: 7, y: 4, w: 1, h: 2 });
+    ex({ id: 'cap_trophy', kind: 'trophy', name: '🏆 1위 트로피 (캡스톤 홀 안내)', x: 7, y: 4, w: 1, h: 2 });
     ex({ id: 'cap_policy', kind: 'robotarm', name: '🦾 SO-101 로봇팔 전시대', x: 3, y: 5, w: 2, h: 2 });
     deco({ kind: 'banner', x: 12, y: 1, solid: false, wall: true }); deco({ kind: 'banner', x: 4, y: 1, solid: false, wall: true });
     deco({ kind: 'plant', x: 13, y: 3 }); deco({ kind: 'plant', x: 13, y: 7 }); deco({ kind: 'plant', x: 1, y: 7 });
@@ -437,16 +438,27 @@
     ex({ id: 'ws_pnuin', kind: 'poster', variant: 'web', color: '#7b5cd6', name: '🌐 PNUin 포스터', x: 11, y: 1, w: 2, h: 2 });
     ex({ id: 'ws_pc', kind: 'desk', name: '💻 PC 호환성 시스템 컴퓨터', x: 3, y: 4, w: 2, h: 2 });
     ex({ id: 'ws_db', kind: 'laptop', name: '🌱 DB 설계 노트북', x: 9, y: 4, w: 2, h: 2 });
+    ex({ id: 'ws_summary', kind: 'lectern', name: '📖 프로젝트 공방 안내판', x: 7, y: 4, w: 1, h: 2 });
     deco({ kind: 'crate', x: 13, y: 3 }); deco({ kind: 'crate', x: 13, y: 4 }); deco({ kind: 'plant', x: 1, y: 7 });
   });
-  interior('observatory', '대외활동 센터', '#3b3b6d', '#323262', '#8e86a8', '#7d7598', (ex, deco, sc) => {
-    sc.rug = { x: 5, y: 5, w: 5, h: 3, c: '#5b4596', c2: '#9479d6', round: true };
-    sc.stars = true;
-    ex({ id: 'dcc_seg', kind: 'poster', variant: 'map', color: '#5ab06a', name: '🗺️ 데이터 크리에이터 캠프 · 산업단지 분할 포스터', x: 2, y: 1, w: 2, h: 2 });
-    ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🥈 온기 · SW 해커톤 2등 게시판', x: 6, y: 1, w: 3, h: 2 });
-    ex({ id: 'dcc_chimney', kind: 'poster', variant: 'chimney', color: '#e0703a', name: '🏭 데이터 크리에이터 캠프 · 굴뚝 탐지 포스터', x: 11, y: 1, w: 2, h: 2 });
-    ex({ id: 'dcc_intro', kind: 'telescope', name: '🛰️ 데이터 크리에이터 캠프 망원경', x: 7, y: 4, w: 1, h: 2 });
-    deco({ kind: 'globe', x: 3, y: 6 }); deco({ kind: 'plant', x: 13, y: 7 }); deco({ kind: 'rack', x: 13, y: 3 });
+  // 대외활동 센터: 왼쪽 데이터 크리에이터 캠프 / 가운데 동아리 / 오른쪽 해커톤 — 구역마다 벽지·바닥이 다르다
+  interior('observatory', '대외활동 센터', '#efe3c8', '#e5d5b3', '#c2955f', '#b08451', (ex, deco, sc) => {
+    sc.zones = [
+      { x0: 1, x1: 4, wallA: '#3b3b6d', wallB: '#323262', floorA: '#8e86a8', floorB: '#7d7598', stars: true, label: '🛰️ 데이터 크리에이터 캠프', sign: '#9479d6' },
+      { x0: 5, x1: 9, wallA: '#efe3c8', wallB: '#e5d5b3', floorA: '#c2955f', floorB: '#b08451', label: '🎓 동아리', sign: '#d9a46a' },
+      { x0: 10, x1: 13, wallA: '#ffd9e6', wallB: '#ffc7da', floorA: '#e9bcc6', floorB: '#dca8b5', label: '🥈 SW 해커톤', sign: '#f08cb0' },
+    ];
+    sc.rugs = [{ x: 1, y: 6, w: 4, h: 2, c: '#5b4596', c2: '#9479d6' }, { x: 10, y: 6, w: 4, h: 2, c: '#d8668f', c2: '#ffd3e3' }];
+    ex({ id: 'dcc_seg', kind: 'poster', variant: 'map', color: '#5ab06a', name: '🗺️ 데이터 크리에이터 캠프 · 산업단지 분할 포스터', x: 1, y: 1, w: 2, h: 2 });
+    ex({ id: 'dcc_chimney', kind: 'poster', variant: 'chimney', color: '#e0703a', name: '🏭 데이터 크리에이터 캠프 · 굴뚝 탐지 포스터', x: 3, y: 1, w: 2, h: 2 });
+    ex({ id: 'dcc_intro', kind: 'telescope', name: '🛰️ 데이터 크리에이터 캠프 망원경', x: 2, y: 4, w: 1, h: 2 });
+    ex({ id: 'clubs', kind: 'cork', name: '🎓 동아리 게시판', x: 6, y: 1, w: 3, h: 2 });
+    ex({ id: 'ext_summary', kind: 'lectern', name: '📖 대외활동 센터 안내판', x: 7, y: 4, w: 1, h: 2 });
+    ex({ id: 'ws_ongi', kind: 'cork', medal: true, name: '🥈 온기 · SW 해커톤 2등 게시판', x: 10, y: 1, w: 3, h: 2 });
+    deco({ kind: 'podium', x: 12, y: 4 });
+    deco({ kind: 'partition', x: 5, y: 3 }); deco({ kind: 'partition', x: 9, y: 3 });
+    deco({ kind: 'pillar', x: 5, y: 0, solid: false, wall: true }); deco({ kind: 'pillar', x: 10, y: 0, solid: false, wall: true });
+    deco({ kind: 'plant', x: 13, y: 7 }); deco({ kind: 'globe', x: 4, y: 7 });
   });
 
   // ---------------------------------------------------------------- NPC
@@ -490,11 +502,11 @@
   function renderGround(sc) {
     return makeCanvas(sc.w * T, sc.h * T, (g) => {
       for (let y = 0; y < sc.h; y++) for (let x = 0; x < sc.w; x++) drawGroundTile(g, sc, x, y);
-      if (sc.rug) {
-        const r = sc.rug, X = r.x * T, Y = r.y * T, W = r.w * T, H = r.h * T;
+      [sc.rug, ...(sc.rugs || [])].filter(Boolean).forEach((r) => {
+        const X = r.x * T, Y = r.y * T, W = r.w * T, H = r.h * T;
         px(g, r.c, X, Y, W, H); px(g, r.c2, X + 3, Y + 3, W - 6, H - 6); px(g, r.c, X + 6, Y + 6, W - 12, H - 12);
         for (let i = X + 2; i < X + W - 2; i += 4) { px(g, r.c2, i, Y - 2, 2, 2); px(g, r.c2, i, Y + H, 2, 2); }
-      }
+      });
       if (sc.carpet) px(g, '#c92f4a', sc.carpet.x * T - 4, sc.carpet.y * T, T + 8, sc.carpet.h * T + T), px(g, '#ffd23f', sc.carpet.x * T - 4, sc.carpet.y * T, 2, (sc.carpet.h + 1) * T), px(g, '#ffd23f', sc.carpet.x * T + T + 2, sc.carpet.y * T, 2, (sc.carpet.h + 1) * T);
       sc.deco.forEach((d) => {
         const X = d.x * T, Y = d.y * T, h1 = hash(d.x, d.y), h2 = hash(d.y, d.x);
@@ -515,6 +527,7 @@
   }
   function drawGroundTile(g, sc, x, y) {
     const t = sc.ground[y][x], X = x * T, Y = y * T, r = hash(x, y);
+    const Z = (sc.zones && sc.zones.find((z) => x >= z.x0 && x <= z.x1)) || sc;   // 구역별 벽지/바닥 색
     const at = (dx, dy) => (sc.ground[y + dy] && sc.ground[y + dy][x + dx]) || t;
     if (t === 'grass' || t === 'path' || t === 'soil' || t === 'cobble' || t === 'water') {
       px(g, '#86c45a', X, Y, T, T);
@@ -557,20 +570,20 @@
         if (dx === 1) { px(g, '#e9d7a6', X + T - 2, Y, 2, T); }
       });
     } else if (t === 'floor') {
-      px(g, sc.floorA, X, Y, T, T);
-      for (let i = 0; i < T; i += 4) px(g, sc.floorB, X, Y + i, T, 1);
-      px(g, sc.floorB, X + ((y % 2) ? 5 : 11), Y, 1, T);
+      px(g, Z.floorA, X, Y, T, T);
+      for (let i = 0; i < T; i += 4) px(g, Z.floorB, X, Y + i, T, 1);
+      px(g, Z.floorB, X + ((y % 2) ? 5 : 11), Y, 1, T);
       if (y === 3) px(g, 'rgba(0,0,0,.18)', X, Y, T, 3);
     } else if (t === 'wall' || t === 'exit') {
       if (y < 3 && x > 0 && x < sc.w - 1) {
-        px(g, sc.wallA, X, Y, T, T);
-        for (let i = (x % 2) * 4; i < T; i += 8) px(g, sc.wallB, X + i, Y, 3, T);
-        if (sc.stars && hash(x, y) > 0.3) { px(g, '#fff6b0', X + Math.floor(hash(y, x) * 14), Y + Math.floor(r * 14), 1, 1); px(g, '#ffffff', X + Math.floor(r * 13), Y + Math.floor(hash(x * 3, y) * 13), 1, 1); }
+        px(g, Z.wallA, X, Y, T, T);
+        for (let i = (x % 2) * 4; i < T; i += 8) px(g, Z.wallB, X + i, Y, 3, T);
+        if (Z.stars && hash(x, y) > 0.3) { px(g, '#fff6b0', X + Math.floor(hash(y, x) * 14), Y + Math.floor(r * 14), 1, 1); px(g, '#ffffff', X + Math.floor(r * 13), Y + Math.floor(hash(x * 3, y) * 13), 1, 1); }
         if (y === 0) px(g, 'rgba(0,0,0,.22)', X, Y, T, 3);
         if (y === 2) { px(g, '#8a5a36', X, Y + 9, T, 7); px(g, '#a8744a', X, Y + 9, T, 2); px(g, '#5b3a22', X, Y + 15, T, 1); }
       } else {
         px(g, '#3b2a22', X, Y, T, T); px(g, '#5b3a22', X + 1, Y + 1, T - 2, T - 2);
-        if (t === 'exit') { px(g, sc.floorA, X, Y, T, T); px(g, '#b34a5a', X + 1, Y + 3, T - 2, 10); px(g, '#e8768a', X + 3, Y + 5, T - 6, 6); }
+        if (t === 'exit') { px(g, Z.floorA, X, Y, T, T); px(g, '#b34a5a', X + 1, Y + 3, T - 2, 10); px(g, '#e8768a', X + 3, Y + 5, T - 6, 6); }
       }
     }
   }
@@ -644,6 +657,16 @@
         px(g, '#ffd23f', X + 6, Y + 6, 4, 4); px(g, '#ffd23f', X + 7, Y + 10, 2, 3);
         break;
       case 'crate': px(g, '#a8744a', X + 1, Y + 2, 14, 13); px(g, '#8a5a36', X + 1, Y + 2, 14, 2); px(g, '#8a5a36', X + 1, Y + 8, 14, 1); px(g, '#8a5a36', X + 7, Y + 2, 2, 13); break;
+      case 'podium':
+        px(g, '#c9cfdb', X + 1, Y + 8, 14, 8); px(g, '#e9edf5', X + 1, Y + 8, 14, 2); px(g, '#5b3a22', X + 6, Y + 11, 4, 3);
+        blob(g, X + 8, Y - 1, 5, '#dfe4ea'); blob(g, X + 8, Y - 1, 3, '#b8c0cc'); px(g, '#4f8dd9', X + 5, Y - 11, 2, 6); px(g, '#ff6b8f', X + 9, Y - 11, 2, 6);
+        px(g, '#ffffff', X + 6, Y - 3, 2, 2);
+        break;
+      case 'partition':
+        px(g, '#6b4430', X + 2, Y - 6, 12, 20); px(g, '#a8744a', X + 3, Y - 5, 10, 18); px(g, '#8a5a36', X + 3, Y + 3, 10, 1);
+        blob(g, X + 8, Y - 9, 4, '#4f9a3c'); px(g, '#ff8fb8', X + 9, Y - 12, 2, 2);
+        break;
+      case 'pillar': px(g, '#5b3a22', X - 3, Y, 6, 3 * T); px(g, '#8a5a36', X - 2, Y, 4, 3 * T); px(g, '#b98352', X - 2, Y, 1, 3 * T); break;
       case 'globe':
         px(g, '#6b4430', X + 6, Y + 11, 4, 5); blob(g, X + 8, Y + 6, 5, '#5cb2e6'); px(g, '#5aa845', X + 5, Y + 3, 4, 3); px(g, '#5aa845', X + 9, Y + 7, 3, 3);
         break;
@@ -747,6 +770,16 @@
           .forEach(([c, x, y, w, h]) => { if (x + w < W - 3) { px(g, c, X + x, Y + y, w, h); px(g, '#ff6b8f', X + x + w / 2, Y + y, 1, 1); } });
         if (e.medal) { blob(g, X + W - 9, Y + H - 11, 5, '#dfe4ea'); blob(g, X + W - 9, Y + H - 11, 3, '#b8c0cc'); px(g, '#4f8dd9', X + W - 12, Y + H - 21, 2, 6); px(g, '#ff6b8f', X + W - 8, Y + H - 21, 2, 6); }
         break;
+      case 'lectern': {
+        const glow = 0.5 + 0.5 * Math.sin(time / 300);
+        g.globalAlpha = 0.2 + glow * 0.25; blob(g, X + 8, Y + 9, 10, '#fff6b0'); g.globalAlpha = 1;
+        px(g, '#5b3a22', X + 3, Y + 29, 10, 3); px(g, '#6b4430', X + 6, Y + 15, 4, 14); px(g, '#8a5a36', X + 7, Y + 15, 1, 14);
+        px(g, '#5b3a22', X, Y + 11, 16, 5); px(g, '#8a5a36', X + 1, Y + 11, 14, 3);
+        px(g, '#fffaf0', X + 1, Y + 6, 6, 6); px(g, '#fffaf0', X + 9, Y + 6, 6, 6); px(g, '#d9cdb6', X + 7, Y + 6, 2, 6);
+        for (let i = 0; i < 3; i++) { px(g, '#c9b89a', X + 2, Y + 7 + i * 2, 4, 1); px(g, '#c9b89a', X + 10, Y + 7 + i * 2, 4, 1); }
+        px(g, '#f05a8c', X + 11, Y + 6, 2, 7);
+        break;
+      }
       case 'telescope':
         px(g, '#6b4430', X + 3, Y + 22, 2, 10); px(g, '#6b4430', X + 11, Y + 22, 2, 10); px(g, '#6b4430', X + 7, Y + 20, 2, 12);
         px(g, '#9479d6', X + 1, Y + 8, 16, 7); px(g, '#7d62c2', X + 1, Y + 13, 16, 2); px(g, '#ffd23f', X + 15, Y + 6, 3, 9); px(g, '#2f3346', X + 6, Y + 15, 4, 6);
@@ -837,7 +870,8 @@
   window.addEventListener('keydown', (e) => {
     if (modalOpen) { if (e.key === 'Escape') closeModal(); return; }
     if (mode === 'title') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startGame(); } return; }
-    if (KEYMAP[e.key]) { held.add(KEYMAP[e.key]); tapped = KEYMAP[e.key]; path = null; pending = null; e.preventDefault(); }
+    // 가장 최근에 누른 방향이 이기도록 Set의 끝으로 옮긴다
+    if (KEYMAP[e.key]) { held.delete(KEYMAP[e.key]); held.add(KEYMAP[e.key]); tapped = KEYMAP[e.key]; path = null; pending = null; e.preventDefault(); }
     if (e.key === ' ' || e.key === 'Enter' || e.key === 'z' || e.key === 'Z') { e.preventDefault(); if (!e.repeat) action(); }
     if ((e.key === 'm' || e.key === 'M') && !dlg) openMap();
   });
@@ -845,7 +879,7 @@
   window.addEventListener('blur', () => held.clear());
   document.querySelectorAll('.pad button').forEach((b) => {
     const dir = b.dataset.dir;
-    b.addEventListener('pointerdown', (e) => { e.preventDefault(); held.add(dir); tapped = dir; path = null; b.setPointerCapture(e.pointerId); });
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); held.delete(dir); held.add(dir); tapped = dir; path = null; b.setPointerCapture(e.pointerId); });
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => b.addEventListener(ev, () => held.delete(dir)));
   });
   $('btnA').addEventListener('pointerdown', (e) => { e.preventDefault(); if (mode === 'title') startGame(); else action(); });
@@ -1069,8 +1103,9 @@
     if (d) openModal(d.title, `<div class="doc">${markdown(d.md)}</div>`);
   }
   function openFullCv() {
-    const order = ['home_profile', 'cap_trophy', 'cap_data', 'cap_policy', 'lab_intro', 'lab_isaac', 'lab_ros', 'lab_vla',
-      'ws_pc', 'ws_praise', 'ws_pnu', 'ws_pnuin', 'ws_db', 'ws_ongi', 'dcc_intro', 'dcc_seg', 'dcc_chimney', 'home_skills', 'home_github', 'cap_poster'];
+    const order = ['home_summary', 'home_profile', 'cap_trophy', 'cap_data', 'cap_policy', 'lab_intro', 'lab_isaac', 'lab_ros', 'lab_vla', 'ws_summary',
+      'ws_pc', 'ws_praise', 'ws_pnu', 'ws_pnuin', 'ws_db', 'ext_summary', 'ws_ongi', 'dcc_intro', 'dcc_seg', 'dcc_chimney', 'clubs',
+      'home_skills', 'home_github', 'cap_poster'];
     openModal('📜 옥소미 CV 전체 보기', '<div class="doc">' + order.map((id, k) => `<section class="${k ? 'part' : ''}">${markdown(window.CV_DOCS[id].md)}</section>`).join('') + '</div>');
   }
   const fmtTime = (ts) => { const d = new Date(ts * 1000); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
@@ -1204,7 +1239,7 @@
   }
 
   // ================================================================ 업데이트
-  const SPEED = 6;
+  const SPEED = 7.5;   // 초당 타일
   function update(dt, time) {
     // 화면 전환 페이드
     if (fadeTo) { fade = Math.min(1, fade + dt * 4); if (fade >= 1) { fadeTo(); fadeTo = null; } }
@@ -1232,15 +1267,24 @@
       $('prompt').classList.remove('show');
       return;
     }
+    let carry = 0;   // 한 칸을 다 간 뒤 남은 이동량을 다음 칸에 이어 붙여 끊김을 없앤다
     if (me.moving) {
+      const want = [...held].pop();
+      const [cx, cy] = DIRS[me.dir];
+      if (want && DIRS[want][0] === -cx && DIRS[want][1] === -cy) {
+        // 반대 방향 키는 칸이 끝나기를 기다리지 않고 바로 돌아선다
+        [me.x, me.fromX] = [me.fromX, me.x]; [me.y, me.fromY] = [me.fromY, me.y];
+        me.t = 1 - me.t; me.dir = want; path = null; pending = null;
+      }
       me.t += dt * SPEED;
       if (me.t >= 1) {
+        carry = Math.min(me.t - 1, 0.5);
         me.moving = false; me.t = 0;
         if (path && !path.length) finishPath();
       }
     }
     if (!me.moving && !modalOpen && !fadeTo) {
-      let dir = ['up', 'down', 'left', 'right'].find((d) => held.has(d)) || tapped;
+      let dir = [...held].pop() || tapped;
       tapped = null;
       if (!dir && path && path.length) {
         const [nx, ny] = path[0];
@@ -1254,7 +1298,7 @@
         const door = scene.doors.find((d) => d.x === nx && d.y === ny);
         if (door) enterDoor(door);
         else if (scene.exit && nx === scene.exit.x && ny === scene.exit.y) exitHouse();
-        else if (walkable(nx, ny)) { me.fromX = me.x; me.fromY = me.y; me.x = nx; me.y = ny; me.moving = true; me.t = 0; me.step++; }
+        else if (walkable(nx, ny)) { me.fromX = me.x; me.fromY = me.y; me.x = nx; me.y = ny; me.moving = true; me.t = carry; me.step++; }
       }
     }
     // 안내 문구
@@ -1295,7 +1339,8 @@
     const my = (me.moving ? me.fromY + (me.y - me.fromY) * me.t : me.y) * T;
     const MW = scene.w * T, MH = scene.h * T;
     cam.x = MW <= VW ? (MW - VW) / 2 : Math.max(0, Math.min(MW - VW, mx + 8 - VW / 2));
-    cam.y = MH <= VH ? (MH - VH) / 2 : Math.max(0, Math.min(MH - VH, my + 8 - VH / 2));
+    // 실내는 방을 화면 아래쪽에 붙여 위쪽 정보창과 겹치지 않게 한다
+    cam.y = MH <= VH ? MH - VH : Math.max(0, Math.min(MH - VH, my + 8 - VH / 2));
     cam.x = Math.round(cam.x); cam.y = Math.round(cam.y);
     ctx.setTransform(S, 0, 0, S, -cam.x * S, -cam.y * S);
     ctx.drawImage(scene.groundCanvas, 0, 0);
@@ -1322,7 +1367,8 @@
 
     // 표지판 / 미방문 표시
     if (!scene.indoor) town.houses.forEach((h) => drawSign(h, time));
-    scene.exhibits.forEach((e) => { if (!e.action && !st.visited.includes(e.id)) drawBang(e.x * T + e.w * T / 2, (e.kind === 'trophy' || e.kind === 'telescope' ? e.y * T - 4 : e.y * T + (e.y < 3 ? 2 : -2)), time); });
+    (scene.zones || []).forEach(drawZoneSign);
+    scene.exhibits.forEach((e) => { if (!e.action && !st.visited.includes(e.id)) drawBang(e.x * T + e.w * T / 2, (e.kind === 'trophy' || e.kind === 'telescope' || e.kind === 'lectern' ? e.y * T - 4 : e.y * T + (e.y < 3 ? 2 : -2)), time); });
     scene.npcs.forEach((n) => { if (!st.visited.includes(n.id)) drawBang(n.fx * T + 8, n.fy * T + (n.sprite === 'cat' ? -2 : -14), time); });
 
     ctx.setTransform(S, 0, 0, S, 0, 0);
@@ -1369,6 +1415,13 @@
     x = Math.round(x);
     px(ctx, '#5b3a22', x - 3, by - 7, 7, 10); px(ctx, '#ffd23f', x - 2, by - 6, 5, 8);
     px(ctx, '#5b3a22', x - 1, by - 5, 2, 4); px(ctx, '#5b3a22', x - 1, by, 2, 1);
+  }
+  function drawZoneSign(z) {
+    const cx = (z.x0 + z.x1 + 1) / 2 * T, cy = 5;
+    ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = Math.ceil(ctx.measureText(z.label).width) + 8;
+    px(ctx, '#5b3a22', cx - w / 2 - 1, cy - 5, w + 2, 10); px(ctx, z.sign, cx - w / 2, cy - 4, w, 8);
+    ctx.fillStyle = '#2b1a10'; ctx.fillText(z.label, cx, cy);
   }
   function drawSign(h, time) {
     const unread = scenes[h.id].exhibits.filter((e) => !st.visited.includes(e.id)).length;

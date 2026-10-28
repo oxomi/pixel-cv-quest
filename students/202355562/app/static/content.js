@@ -32,6 +32,33 @@ window.CV_DOCS = {
 마을 곳곳의 집에 들어가 포스터와 게시판을 둘러보세요. 처음 읽을 때마다 **💰 10G**를 드려요!
 `,
   },
+  home_summary: {
+    title: '📖 옥소미 한눈에 보기',
+    md: `
+# 📖 옥소미 한눈에 보기
+
+> 로봇이 보고, 이해하고, 움직이게 만드는 **Physical AI**를 공부하는 부산대 정보컴퓨터공학부 학생이에요.
+
+## 🗺️ 마을 안내
+| 장소 | 들어 있는 이야기 |
+|---|---|
+| 🔬 **DTPLab 연구실** | 학부연구생 — Isaac Sim 강화학습, ROS 로봇 시스템, SO-101 모방학습 비교 |
+| 🏆 **캡스톤 홀** | 졸업과제 — LeRobot SO-101 로봇팔 제어, **피지컬 AI 트랙 성능 1위** |
+| 🔧 **프로젝트 공방** | 팀 프로젝트 — 주로 **백엔드**, AWS 배포·CI/CD |
+| 🎪 **대외활동 센터** | 데이터 크리에이터 캠프, SW 해커톤 **2등**, 동아리 3곳 |
+
+## ⭐ 하이라이트
+- 🏆 졸업과제 피지컬 AI 트랙 **성능 1위** (블록 옮기기 4.95/5, 쌓기 4.6/5)
+- 🥈 2025 PNU SW 창의융합 해커톤 **2등** — 온기 (백엔드)
+- 🛰️ 데이터 크리에이터 캠프 — 산업단지 분할 **mIoU 0.977**
+- 🔐 정보보안 동아리 **Keeper 부회장**
+
+## 이 방에 있는 것
+- 🖼️ **자기소개 액자** — 관심 분야와 연락처
+- 📚 **기술 책장** — 다뤄 본 기술 스택
+- 💻 **컴퓨터** — GitHub 프로젝트 목록
+`,
+  },
   home_skills: {
     title: '📚 기술 책장',
     md: `
@@ -62,16 +89,14 @@ window.CV_DOCS = {
 # 🐙 github.com/oxomi
 
 ## 대표 프로젝트
+- **[kidzania-family](https://github.com/kidzania-family)** — 🏆 졸업과제: LeRobot SO-101 로봇팔 제어 (피지컬 AI 트랙 성능 1위)
 - **[PNUSW-2025-OnGi-10](https://github.com/oxomi/PNUSW-2025-OnGi-10)** — 🥈 해커톤 2등, 가족 건강 소통 앱 *온기* (백엔드)
+- **[ComTogether](https://github.com/ApptiveDev/ComTogether)** — AI 기반 PC 부품 호환성 분석 & 전문가 상담 (백엔드)
+- **[PPP](https://github.com/PNU-PPP/PPP)** — PNU 학사 도우미 앱 *피플플*
 - **[PraisePrisonApp](https://github.com/oxomi/PraisePrisonApp)** — 칭찬감옥: 나를 칭찬하는 SNS 일기 앱 (Kotlin)
 - **[PNUin](https://github.com/oxomi/PNUin)** — 웹응용프로그래밍 텀프로젝트 (Node.js, Express)
 - **[db_Termproject](https://github.com/oxomi/db_Termproject)** — 탄소중립 스마트 SCM 플랫폼 DB 설계
 - **[pixel-cv-quest](https://github.com/oxomi/pixel-cv-quest)** — 지금 보고 있는 이 마을! (OpenShift 배포)
-
-## 공부 기록
-- [2024_DataStructure_Study](https://github.com/oxomi/2024_DataStructure_Study) — 바킹독 자료구조 완강하기
-- [2024_React_Study](https://github.com/oxomi/2024_React_Study) — React · TypeScript
-- [2023_Cpp_Study](https://github.com/oxomi/2023_Cpp_Study) · [2024_Tak_Cpp_Programming](https://github.com/oxomi/2024_Tak_Cpp_Programming) · [2023_C_Study](https://github.com/oxomi/2023_C_Study)
 `,
   },
 
@@ -84,10 +109,12 @@ window.CV_DOCS = {
 
 Vision-Language-Action(VLA), 강화학습, Sim-to-Real 로봇 매니퓰레이션을 연구하고 있어요.
 
-## 이 방에 있는 것들
-- 🧪 **왼쪽 포스터** — Isaac Sim 강화학습 (Dofbot)
-- 📡 **가운데 포스터** — ROS 기반 로봇 통신 시스템
-- 🖥️ **모니터** — SO-101 모방학습 모델 비교
+## 연구 요약
+| 주제 | 한 일 | 자세히 |
+|---|---|---|
+| 🧪 Isaac Sim 강화학습 | Dofbot pick-and-place 환경 구축, PPO·SAC 학습, 보상 설계·Sim-to-Real 분석 | 왼쪽 포스터 |
+| 📊 SO-101 모방학습 | 원격조작 데이터셋 구축, ACT·SmolVLA·Diffusion Policy 비교 | 가운데 화이트보드 |
+| 📡 ROS 로봇 시스템 | GPU 서버 ↔ 로봇 state/action 통신, 분산 실시간 제어 | 오른쪽 포스터 |
 
 > "시뮬레이션에서 배운 것을 실제 로봇에서 그대로 쓰려면 무엇이 필요할까?" — 요즘 가장 많이 하는 고민이에요.
 `,
@@ -169,8 +196,15 @@ Vision-Language-Action(VLA), 강화학습, Sim-to-Real 로봇 매니퓰레이션
 
 두 미션 모두 **하나의 모델**로 수행해요.
 
----
-벽의 **포스터**, **화이트보드**, **로봇팔 전시대**, **TV**에서 자세한 이야기를 볼 수 있어요.
+## 이 방 요약
+| 전시물 | 내용 |
+|---|---|
+| 🖼️ 포스터 | 졸업과제 발표회 포스터 전체 |
+| 📊 화이트보드 | 실물 데이터의 한계 → MuJoCo 시뮬레이션 데이터 3,200개 → Domain Randomization |
+| 🦾 로봇팔 전시대 | ACT 선택 이유, 잔차 강화학습, 서버+엣지 비동기 추론 |
+| 📺 TV | 졸업과제 발표 영상 |
+
+🔗 [GitHub: kidzania-family](https://github.com/kidzania-family)
 `,
   },
   cap_poster: {
@@ -255,6 +289,31 @@ SO-101 ──관측──▶ Jetson Orin Nano ──gRPC──▶ RTX 4090 서�
   },
 
   // ------------------------------------------------------------ 프로젝트 공방
+  ws_summary: {
+    title: '📖 프로젝트 공방 안내',
+    md: `
+# 🔧 프로젝트 공방
+
+> 팀 프로젝트에서는 주로 **백엔드**를 맡았고, **AWS 배포와 CI/CD 파이프라인 구축**까지 책임졌어요.
+
+## 내가 주로 맡은 일
+- **API 서버 설계·구현** — Java · Spring Boot, Node.js · Express
+- **데이터베이스 설계** — MySQL, 서비스 도메인 모델링
+- **배포·운영** — AWS(App Runner, RDS, S3)에 배포, GitHub Actions로 **CI/CD** 자동화
+- **성능 개선** — 비동기 병렬 처리로 외부 AI API 응답 시간 단축
+
+## 프로젝트 요약
+| 프로젝트 | 한 줄 요약 | 역할 · 기술 |
+|---|---|---|
+| 💻 [ComTogether](https://github.com/ApptiveDev/ComTogether) | AI로 PC 부품 호환성을 분석하고 전문가 상담을 연결 | **백엔드** · Gemini API, 비동기 처리, AWS CI/CD |
+| 📱 [PPlusPlus](https://github.com/PNU-PPP/PPP) | 부산대 공지·학사 정보를 모은 학사 도우미 앱 | 크롤링 데이터 수집 · Java, Node.js, FCM |
+| 😇 [칭찬감옥](https://github.com/oxomi/PraisePrisonApp) | 나를 칭찬하는 SNS 일기 앱 | Kotlin · KLUE-BERT 감성 분석 |
+| 🌐 [PNUin](https://github.com/oxomi/PNUin) | 웹응용프로그래밍 텀프로젝트 | Node.js · Express |
+| 🌱 [DB 텀프로젝트](https://github.com/oxomi/db_Termproject) | 탄소중립 스마트 SCM 플랫폼 | DB 설계 |
+
+대회에서 만든 **온기(해커톤 2등)**는 🎪 대외활동 센터에 있어요!
+`,
+  },
   ws_ongi: {
     title: '🥈 온기 — 해커톤 2등',
     md: `
@@ -280,14 +339,24 @@ SO-101 ──관측──▶ Jetson Orin Nano ──gRPC──▶ RTX 4090 서�
   ws_pc: {
     title: '💻 AI PC 부품 호환성 분석 시스템',
     md: `
-# AI 기반 PC 부품 호환성 분석 & 전문가 상담 시스템
-**역할: 백엔드**
+# 💻 ComTogether (컴투게더)
+### AI 기반 PC 부품 호환성 분석 & 전문가 상담 시스템
+> 세상의 컴알못이 사라질 때까지!
 
-- 초보자도 PC 견적을 이해하고 직접 구성할 수 있는 **가이드형 시스템**
+**역할: 백엔드** · APPTIVE 동아리 팀 프로젝트
+
+## 서비스
+- 초보자를 위한 **단계별 PC 조립 가이드**와 용어 사전
+- 선택한 부품 간 **호환성 체크** (좋음 / 보통 / 나쁨)
+- 전문가와의 **1:1 상담** 예약, 질문·답변 **커뮤니티**
+
+## 내가 한 일
 - **Gemini API** 프롬프트 기반으로 부품 간 **호환성 추론 로직** 설계
 - 전문가가 견적을 도와주는 **전문가 상담 기능** 구현
 - **비동기 병렬 처리**로 응답 시간 단축
 - **AWS** 배포 + **CI/CD** 파이프라인 구축
+
+🔗 [GitHub: ApptiveDev/ComTogether](https://github.com/ApptiveDev/ComTogether)
 `,
   },
   ws_praise: {
@@ -306,10 +375,24 @@ SO-101 ──관측──▶ Jetson Orin Nano ──gRPC──▶ RTX 4090 서�
   ws_pnu: {
     title: '📱 PNU 학사 도우미',
     md: `
-# 📱 PNU 학사 도우미 앱
+# 📱 PPlusPlus (피플플) — PNU 학사 도우미 앱
+**부산대학교 학생 편의를 위한 안드로이드 앱** · 4인 팀 · 2024 여름방학
 
 - 학교 곳곳에 흩어진 **공지사항과 학사 정보를 한 곳에** 모은 통합 플랫폼
-- **웹 크롤링 기반 데이터 수집 시스템** 구현
+- **웹 크롤링 기반 데이터 수집 시스템** 구현 — 모든 학과 홈페이지 공지, 비교과 활동 정보를 실시간 수집
+
+## 주요 기능
+- 학과 공지사항·비교과 활동 **통합 조회**
+- 학사일정 조회와 새 공지 **푸시 알림** (FCM)
+- 학점 평균 계산기, 학점 예측
+- 학교 근처 맛집 검색·랜덤 추천
+
+| 구분 | 기술 |
+|---|---|
+| Frontend | Android (Java), KakaoMaps |
+| Backend | Java, Node.js (Express), FCM |
+
+🔗 [GitHub: PNU-PPP/PPP](https://github.com/PNU-PPP/PPP)
 `,
   },
   ws_pnuin: {
@@ -336,6 +419,39 @@ SO-101 ──관측──▶ Jetson Orin Nano ──gRPC──▶ RTX 4090 서�
   },
 
   // ------------------------------------------------------------ 대외활동 센터
+  ext_summary: {
+    title: '📖 대외활동 센터 안내',
+    md: `
+# 🎪 대외활동 센터
+
+학교 밖 대회·캠프와 동아리 활동을 모아 둔 곳이에요. 방이 세 구역으로 나뉘어 있어요.
+
+| 구역 | 활동 | 결과 |
+|---|---|---|
+| ⬅️ 왼쪽 · 보라색 | 🛰️ **데이터 크리에이터 캠프** (과기정통부·NIA, 2025.08–10) | 산업단지 분할 **mIoU 0.977**, 굴뚝 높이 RMSE ≈ 8m |
+| ⬆️ 가운데 | 🎓 **동아리** — Keeper · AID · APPTIVE | 정보보안 동아리 **부회장** |
+| ➡️ 오른쪽 · 분홍색 | 🥈 **2025 PNU SW 창의융합 해커톤** — 온기 | **2등**, 백엔드 담당 |
+
+## 한 줄씩
+- 🛰️ 위성 영상으로 대기오염 배출원(산업단지·굴뚝)을 찾는 end-to-end 파이프라인
+- 🥈 부모님 건강 기록을 가족과 나누는 앱 *온기* — Spring Boot · MySQL · AWS
+- 🎓 정보보안 → 인공지능 → IT 서비스 백엔드로 이어진 동아리 활동
+`,
+  },
+  clubs: {
+    title: '🎓 동아리 활동',
+    md: `
+# 🎓 동아리 활동
+
+| 기간 | 동아리 | 활동 |
+|---|---|---|
+| 2023-2학기 – 2024-2학기 | 🔐 **Keeper** (정보보안 동아리) | **부회장** |
+| 2025-1, 2학기 | 🤖 **AID** (인공지능 동아리) | 부원 |
+| 2025-1, 2학기 | 📱 **APPTIVE** (IT 서비스 동아리) | 부원 · **백엔드 트랙** — [ComTogether](https://github.com/ApptiveDev/ComTogether) 개발 |
+
+> 보안에서 시작해 AI와 서비스 개발까지, 관심 있는 분야를 동아리로 직접 부딪혀 보며 넓혀 왔어요.
+`,
+  },
   dcc_intro: {
     title: '🛰️ 데이터 크리에이터 캠프',
     md: `
