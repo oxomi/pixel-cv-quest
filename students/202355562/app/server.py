@@ -25,6 +25,7 @@ GUESTBOOK_COST = int(os.environ.get("GUESTBOOK_COST", "30"))
 RATING_COST = int(os.environ.get("RATING_COST", "20"))
 FLOWER_COST = int(os.environ.get("FLOWER_COST", "15"))
 BAIT_COST = int(os.environ.get("BAIT_COST", "10"))
+DAILY_BONUS = int(os.environ.get("DAILY_BONUS", "30"))
 SPOT_IDS = set(os.environ.get("SPOT_IDS", ",".join([
     "guide", "senior", "teammate", "mc", "scientist", "cat", "fisher", "gardener",
     "home_summary", "ws_summary", "ext_summary", "clubs",
@@ -66,12 +67,20 @@ FISH = [
 ]
 
 
+RARITY_SCORE = {"흔함": 100, "보통": 300, "희귀": 1000, "영웅": 3000, "전설": 10000}
+RARITY_PRICE = {"흔함": 3, "보통": 8, "희귀": 20, "영웅": 60, "전설": 200}
+
+
 def roll_fish(accuracy):
     """물고기 종류와 크기를 서버에서 뽑는다. 타이밍이 정확할수록 희귀하고 큰 물고기가 잘 나온다."""
     boost = {"희귀": 1 + 1.5 * accuracy, "영웅": 1 + 2 * accuracy, "전설": 1 + 2 * accuracy}
     f = random.choices(FISH, [x[5] * boost.get(x[6], 1) for x in FISH])[0]
-    size = f[3] + (f[4] - f[3]) * random.random() ** (1.4 - 0.8 * accuracy)
-    return {"id": f[0], "name": f[1], "emoji": f[2], "rarity": f[6], "size": round(size, 1)}
+    size = round(f[3] + (f[4] - f[3]) * random.random() ** (1.4 - 0.8 * accuracy), 1)
+    # 랭킹 점수: 등급 기본 점수 × (1 + 그 종 안에서 얼마나 큰지). 등급 구간이 겹치지 않아 희귀도가 먼저다
+    rel = (size - f[3]) / (f[4] - f[3]) if f[4] > f[3] else 1.0
+    score = round(RARITY_SCORE[f[6]] * (1 + rel))
+    price = round(RARITY_PRICE[f[6]] * (1 + rel * 0.5))   # 낚은 물고기를 팔아 받는 G
+    return {"id": f[0], "name": f[1], "emoji": f[2], "rarity": f[6], "size": size, "score": score, "price": price}
 
 PLAYER_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
 CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -231,11 +240,21 @@ class RedisStore:
         if best is None or float(best) < fish["size"]:
             self.r.call("HSET", dex, fish["id"], fish["size"])
         top = self.r.call("ZSCORE", "fish:rank", player)
-        record = top is None or float(top) < fish["size"]
-        if record:   # 랭킹은 Sorted Set: 플레이어별 최고 기록(cm)을 점수로
-            self.r.call("ZADD", "fish:rank", fish["size"], player)
+        record = top is None or float(top) < fish["score"]
+        if record:   # 랭킹은 Sorted Set: 플레이어별 최고 점수(희귀도 + 크기)
+            self.r.call("ZADD", "fish:rank", fish["score"], player)
             self.r.call("HSET", "fish:who", player, json.dumps({"name": name, "fish": fish}, ensure_ascii=False))
         return record
+
+    def add_points(self, player, amount):
+        return self.r.call("INCRBY", "player:%s:points" % player, amount)
+
+    def claim_daily(self, player, day):
+        # SET NX: 오늘 처음일 때만 키가 만들어진다 (이틀 뒤 자동 삭제)
+        ok = self.r.call("SET", "player:%s:daily:%s" % (player, day), 1, "NX", "EX", 172800)
+        if ok:
+            self.add_points(player, DAILY_BONUS)
+        return bool(ok)
 
     def fish_dex(self, player):
         flat = self.r.call("HGETALL", "player:%s:fishdex" % player) or []
@@ -255,7 +274,7 @@ class MemoryStore:
     def __init__(self):
         self.lock = threading.Lock()
         self.pts, self.seen, self.book, self.ratings = {}, {}, [], {}
-        self.flowers, self.dex, self.rank = {}, {}, {}
+        self.flowers, self.dex, self.rank, self.days = {}, {}, {}, set()
 
     def ping(self):
         return True
@@ -327,10 +346,23 @@ class MemoryStore:
             dex = self.dex.setdefault(player, {})
             dex[fish["id"]] = max(dex.get(fish["id"], 0), fish["size"])
             top = self.rank.get(player)
-            record = top is None or top[0] < fish["size"]
+            record = top is None or top[0] < fish["score"]
             if record:
-                self.rank[player] = (fish["size"], {"name": name, "fish": fish})
+                self.rank[player] = (fish["score"], {"name": name, "fish": fish})
             return record
+
+    def add_points(self, player, amount):
+        with self.lock:
+            self.pts[player] = self.pts.get(player, 0) + amount
+            return self.pts[player]
+
+    def claim_daily(self, player, day):
+        with self.lock:
+            if (player, day) in self.days:
+                return False
+            self.days.add((player, day))
+            self.pts[player] = self.pts.get(player, 0) + DAILY_BONUS
+            return True
 
     def fish_dex(self, player):
         return dict(self.dex.get(player, {}))
@@ -362,7 +394,8 @@ def state(player):
         "myRating": store.my_rating(player),
         "rating": rating_summary(),
         "costs": {"guestbook": GUESTBOOK_COST, "rating": RATING_COST, "visit": POINTS_PER_VISIT,
-                  "flower": FLOWER_COST, "bait": BAIT_COST},
+                  "flower": FLOWER_COST, "bait": BAIT_COST,
+                  "daily": DAILY_BONUS},
         "spotCount": len(SPOT_IDS),
         "media": {"base": MEDIA_BASE, "video": VIDEO_URL},
         "storage": "redis" if REDIS_HOST else "memory",
@@ -423,7 +456,15 @@ def api_fish(body):
         raise ApiError(402, "미끼를 살 G가 부족해요. 집 안 전시물을 읽고 G를 모아 보세요!")
     fish = roll_fish(accuracy)
     record = store.record_fish(player, name, fish)
+    store.add_points(player, fish["price"])   # 잡은 물고기는 바로 팔려서 G로 돌아온다
     return dict(state(player), fish=fish, record=record, **fishing(player))
+
+
+def api_daily(body):
+    player = check_player(body.get("player"))
+    day = time.strftime("%Y%m%d", time.gmtime(time.time() + 9 * 3600))   # 한국 시간 기준 날짜
+    awarded = DAILY_BONUS if store.claim_daily(player, day) else 0
+    return dict(state(player), awarded=awarded)
 
 
 def api_guestbook(body):
@@ -501,7 +542,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         routes = {"/api/visit": api_visit, "/api/guestbook": api_guestbook, "/api/rating": api_rating,
-                  "/api/plant": api_plant, "/api/fish": api_fish}
+                  "/api/plant": api_plant, "/api/fish": api_fish, "/api/daily": api_daily}
         fn = routes.get(urlparse(self.path).path)
         if not fn:
             return self._json(404, {"error": "not found"})

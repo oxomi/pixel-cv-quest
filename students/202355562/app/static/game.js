@@ -529,7 +529,8 @@
     { id: 'fisher', name: '낚시꾼 연이', sprite: 'fisher', x: 25, y: 16, lines: [
       '🎣 연못에서 낚시해 볼래? 미끼는 10G야.',
       '찌가 흔들리면 움직이는 바늘이 초록 칸에 올 때 Space!\n타이밍이 정확할수록 크고 희귀한 물고기가 잡혀.',
-      '전설의 물고기도 있다던데…\n큰 걸 낚으면 🏆 월척 랭킹 게시판에 이름이 올라가!',
+      '낚은 물고기는 바로 팔려서 G가 돌아와. 희귀할수록 비싸게 팔리지!',
+      '전설의 물고기도 있다던데…\n희귀하고 큰 걸 낚으면 🏆 월척 랭킹 게시판에 이름이 올라가!',
     ] },
     { id: 'cat', name: '모찌', sprite: 'cat', x: 22, y: 15, wander: { x: 16, y: 15, w: 8, h: 2 }, lines: [
       '냐옹~ 🐾',
@@ -883,10 +884,17 @@
     try { garden = (await api('/api/garden')).plots; } catch (e) { /* 다음 갱신 때 다시 시도 */ }
   }
   // 처음으로 미끼값만큼 G가 모이면 미니게임을 한 번 알려 준다
+  async function claimDaily() {
+    try {
+      const res = await api('/api/daily', { player: playerId });
+      applyState(res);
+      if (res.awarded) setTimeout(() => toast(`🎁 오늘의 방문 선물 +${res.awarded}G! 내일 또 받을 수 있어요`, 3200), 700);
+    } catch (e) { setOnline(false); }
+  }
   function miniHint() {
     if (mode !== 'play' || st.points < st.costs.bait || store.get('cvv.minihint')) return;
     store.set('cvv.minihint', '1');
-    setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 지도)', 3600), 1900);
+    setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 지도)', 3600), 4300);
   }
   async function visit(id) {
     if (st.visited.includes(id)) return;
@@ -1277,6 +1285,8 @@
 - **🌱 꽃 심기** — 마을 서쪽 꽃밭의 빈 칸에 ${st.costs.flower}G로 내 이름이 적힌 꽃을 심어요. 모든 방문자에게 보여요!
 
 ## 💰 G 모으기
+- 🎁 **매일 방문 선물** — 하루에 한 번 마을에 오면 **${st.costs.daily}G**
+- 🐟 **물고기 판매** — 낚은 물고기는 바로 팔려요. 희귀할수록 비싸서, 잘 낚으면 미끼값보다 더 벌 수 있어요
 - 전시물을 처음 읽거나 주민과 처음 대화하면 **${st.costs.visit}G**
 - 광장의 **📮 방명록**(${st.costs.guestbook}G), **⭐ 별 동상**(${st.costs.rating}G)에서 사용해요.
 
@@ -1390,13 +1400,13 @@
       : `<div class="fish"><span>❔</span>???<small>${f.rarity}</small></div>`).join('');
     $('fiDexCount').textContent = `${Object.keys(dex).length} / ${data.species.length}`;
     $('fiRank').innerHTML = data.rank.length
-      ? data.rank.slice(0, 5).map((r, i) => `<li class="${r.me ? 'me' : ''}"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b> ${esc(r.name)} — ${r.fish.emoji} ${esc(r.fish.name)} <b>${r.fish.size}cm</b></li>`).join('')
+      ? data.rank.slice(0, 5).map((r, i) => `<li class="${r.me ? 'me' : ''}"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b> ${esc(r.name)} — ${r.fish.emoji} ${esc(r.fish.name)} ${r.fish.size}cm · <b>${r.fish.score || '-'}점</b></li>`).join('')
       : '<li>아직 기록이 없어요. 첫 월척의 주인공이 되어 보세요!</li>';
   }
   async function openFishing() {
     const cost = st.costs.bait;
     openModal('🎣 연못 낚시', `
-      <div class="sub">미끼 하나에 <b>💰${cost}G</b> (물고기를 낚았을 때만 써요) · 내 지갑 <b id="fiPts">${st.points}G</b></div>
+      <div class="sub">미끼 하나에 <b>💰${cost}G</b> (낚았을 때만 써요) · 낚은 물고기는 바로 팔려서 <b>G로 돌아와요</b> · 내 지갑 <b id="fiPts">${st.points}G</b></div>
       <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
       <div class="fish-stage">
         <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!<br>
@@ -1421,27 +1431,23 @@
       phase = 'bite';
       msg('❗ <b>입질이다!</b> 바늘이 초록 칸 <b>가운데</b>에 오면 Space!');
       $('fiLegend').classList.remove('hidden');
-      const w = 7 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
+      const w = 10 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
       zone = { a: Math.random() * (100 - w), w };
       $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
       $('fiBar').classList.remove('hidden');
-      let speed = 150 + Math.random() * 90;   // 초당 %
+      const base = 120 + Math.random() * 40;   // 평균 속도 (초당 %)
+      const wobble = 1.6 + Math.random() * 1.4, phase = Math.random() * 6.28;
       let dir = Math.random() < 0.5 ? 1 : -1, last = performance.now();
       const start = last;
-      let jolt = start + 350 + Math.random() * 500;
       pos = Math.random() * 100;
       const step = (now) => {
-        // 물고기가 버둥거리듯 가끔 방향을 틀거나 속도가 바뀐다
-        if (now > jolt) {
-          if (Math.random() < 0.5) dir = -dir;
-          speed = 140 + Math.random() * 120;
-          jolt = now + 300 + Math.random() * 600;
-        }
+        // 방향은 양 끝에서만 바뀌고, 속도만 부드럽게 빨라졌다 느려졌다 한다
+        const speed = base * (1 + 0.45 * Math.sin((now - start) / 1000 * wobble * Math.PI + phase));
         pos += dir * speed * (now - last) / 1000; last = now;
         if (pos > 100) { pos = 200 - pos; dir = -1; }
         if (pos < 0) { pos = -pos; dir = 1; }
         $('fiMark').style.left = `calc(${pos}% - 3px)`;
-        if (now - start > 2600) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
+        if (now - start > 3000) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
         fishAnim = requestAnimationFrame(step);
       };
       fishAnim = requestAnimationFrame(step);
@@ -1469,7 +1475,7 @@
         $('fiPts').textContent = res.points + 'G';
         const f = res.fish;
         $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
-          <div class="size">${f.size} cm</div>${res.record ? '<div class="rec">🎉 내 최고 기록 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
+          <div class="size">${f.size} cm</div><div class="sold">🏆 ${f.score}점 · 💰 +${f.price}G에 팔았어요</div>${res.record ? '<div class="rec">🎉 내 최고 점수 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
         renderFishInfo(res);
         idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 물고기를 낚았어요!!' : '낚았다! 🎉');
       } catch (e) { idle(); msg(e.message, true); }
@@ -1492,10 +1498,12 @@
     openModal('🏆 월척 랭킹 게시판', '<div class="doc"><p>불러오는 중…</p></div>');
     try {
       const d = await api('/api/fishing?player=' + encodeURIComponent(playerId));
-      const rows = d.rank.map((r, i) => `<tr class="${r.me ? 'me' : ''}"><td>${['🥇', '🥈', '🥉'][i] || i + 1}</td><td>${esc(r.name)}${r.me ? ' (나)' : ''}</td><td>${r.fish.emoji} ${esc(r.fish.name)}</td><td><b>${r.fish.size}cm</b></td></tr>`).join('');
+      const rows = d.rank.map((r, i) => `<tr class="${r.me ? 'me' : ''}"><td>${['🥇', '🥈', '🥉'][i] || i + 1}</td><td>${esc(r.name)}${r.me ? ' (나)' : ''}</td><td>${r.fish.emoji} ${esc(r.fish.name)}</td><td>${r.fish.rarity}</td><td>${r.fish.size}cm</td><td><b>${r.fish.score || '-'}점</b></td></tr>`).join('');
       $('cardBody').innerHTML = `<div class="doc"><h1>🏆 월척 랭킹 TOP 10</h1>
-        <p>연못에서 낚은 <b>가장 큰 물고기</b> 기준이에요. 한 사람당 최고 기록 하나만 올라가요.</p>
-        ${d.rank.length ? `<table><thead><tr><th>순위</th><th>이름</th><th>물고기</th><th>크기</th></tr></thead><tbody>${rows}</tbody></table>` : '<p>아직 기록이 없어요. 첫 월척의 주인공이 되어 보세요!</p>'}
+        <p>한 사람당 <b>최고 점수</b> 하나만 올라가요. 점수는 <b>희귀도가 먼저</b>, 같은 등급이면 <b>그 물고기 치고 얼마나 큰지</b>로 정해져요.</p>
+        <table><thead><tr><th>등급</th><th>흔함</th><th>보통</th><th>희귀</th><th>영웅</th><th>전설</th></tr></thead>
+        <tbody><tr><td>점수</td><td>100~200</td><td>300~600</td><td>1,000~2,000</td><td>3,000~6,000</td><td>10,000~20,000</td></tr></tbody></table>
+        ${d.rank.length ? `<table><thead><tr><th>순위</th><th>이름</th><th>물고기</th><th>등급</th><th>크기</th><th>점수</th></tr></thead><tbody>${rows}</tbody></table>` : '<p>아직 기록이 없어요. 첫 월척의 주인공이 되어 보세요!</p>'}
         <h2>🐟 이 연못에 사는 물고기</h2>
         <ul>${d.species.map((f) => `<li>${d.dex[f.id] != null ? `${f.emoji} <b>${esc(f.name)}</b>` : '❔ ???'} — ${f.rarity}</li>`).join('')}</ul>
         <blockquote>💡 타이밍을 정확하게 맞출수록 <b>희귀한 물고기</b>와 <b>큰 물고기</b>가 잘 잡혀요. 전설의 물고기도 있대요…!</blockquote></div>`;
@@ -1514,6 +1522,7 @@
       $('title').classList.add('hidden');
       $('hud').classList.remove('hidden');
       setPlace();
+      claimDaily();
       if (!store.get('cvv.helped')) { store.set('cvv.helped', '1'); setTimeout(() => startDialog(town.npcs[0]), 300); }
     });
   }

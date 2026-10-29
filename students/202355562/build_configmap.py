@@ -26,6 +26,7 @@ CONFIG = {
     "RATING_COST": "20",
     "FLOWER_COST": "15",
     "BAIT_COST": "10",
+    "DAILY_BONUS": "30",
     "MEDIA_BASE": MEDIA_BASE,
     "VIDEO_URL": MEDIA_BASE + "capstone-video.mp4",
 }
