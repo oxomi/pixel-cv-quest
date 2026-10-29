@@ -2649,7 +2649,7 @@ data:
         if (dlg || modalOpen) return;   // 대화·창이 떠 있을 땐 미니맵과 키 안내를 숨긴다
         if (!MM.s) {
           ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-          ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('N: 미니맵 켜기 · M: 전체 지도', 6, VH - 5);
+          ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('M: 전체 지도', 6, VH - 11); ctx.fillText('N: 미니맵 켜기', 6, VH - 5);
           return;
         }
         const { x, y, s } = MM, W = town.w * s, H = town.h * s;
@@ -2665,7 +2665,8 @@ data:
         px(ctx, '#5b3a22', x + Math.round(pxT * s) - 1, y + Math.round(pyT * s) - 1, s + 2, s + 2);
         px(ctx, blink ? '#ff2f7a' : '#ff8fb8', x + Math.round(pxT * s), y + Math.round(pyT * s), s, s);
         ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillStyle = '#fff'; ctx.fillText(s === 1 ? 'N: 미니맵 키우기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
+        // 미니맵 폭을 넘지 않게 두 줄로
+        ctx.fillStyle = '#fff'; ctx.fillText('M: 전체 지도', x, y - 10); ctx.fillText(s === 1 ? 'N: 미니맵 키우기' : 'N: 미니맵 숨기기', x, y - 4);
       }
 
       function shadow(x, y, w = 10) { ctx.fillStyle = 'rgba(40,20,20,.22)'; ctx.fillRect(Math.round(x) + 8 - w / 2, Math.round(y) + 14, w, 3); }
