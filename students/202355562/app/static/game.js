@@ -743,11 +743,13 @@
         break;
       }
       case 'rankboard':
+        // 판자 위쪽엔 트로피·물고기 그림, 아래쪽엔 "낚시 랭킹" 글씨
         px(g, '#6b4430', X + 3, Y + 6, 2, 10); px(g, '#6b4430', X + 11, Y + 6, 2, 10);
-        px(g, '#5b3a22', X - 2, Y - 8, 20, 15); px(g, '#d9b47c', X - 1, Y - 7, 18, 13);
-        px(g, '#f2b52c', X + 1, Y - 6, 4, 3); px(g, '#f2b52c', X + 2, Y - 3, 2, 2);
-        for (let i = 0; i < 3; i++) px(g, '#8a5a36', X + 6, Y - 6 + i * 3, 9 - i * 2, 1);
-        px(g, '#5cb2e6', X + 1, Y + 1, 6, 3); px(g, '#ffffff', X + 2, Y + 1, 1, 1);
+        px(g, '#5b3a22', X - 4, Y - 9, 24, 16); px(g, '#d9b47c', X - 3, Y - 8, 22, 14);
+        px(g, '#f2b52c', X + 1, Y - 7, 5, 3); px(g, '#f2b52c', X + 3, Y - 4, 1, 1); px(g, '#f2b52c', X + 2, Y - 3, 3, 1);
+        px(g, '#5cb2e6', X + 9, Y - 6, 5, 3); px(g, '#5cb2e6', X + 14, Y - 7, 2, 1); px(g, '#5cb2e6', X + 14, Y - 4, 2, 1); px(g, '#ffffff', X + 10, Y - 6, 1, 1);
+        g.font = `5px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillStyle = '#3b2414'; g.fillText('낚시 랭킹', X + 8, Y + 2);
         break;
       case 'gardensign':
         // 판자 위쪽엔 꽃 그림, 아래쪽엔 "꽃 심기" 글씨
