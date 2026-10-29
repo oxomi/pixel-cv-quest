@@ -99,9 +99,13 @@ flowchart LR
 
 ## 4. 배포 방법
 
+Developer Sandbox 웹 콘솔 우측 상단의 `>_`(Web Terminal)에서 실행했습니다. Web Terminal은 이미 로그인된 상태라 `oc login`이 필요 없습니다.
+(로컬 PC에서 할 때는 콘솔 우측 상단 계정 → Copy login command로 `oc login --token=<토큰> --server=<서버>`를 먼저 실행합니다.)
+
 ```bash
-# 0) Developer Sandbox 웹 콘솔 → 우측 상단 계정 → Copy login command 로 로그인
-oc login --token=<토큰> --server=<서버>
+# 0) 저장소를 받고 학번 폴더로 이동
+git clone https://github.com/oxomi/pixel-cv-quest.git
+cd pixel-cv-quest/students/202355562
 
 # 1) 배포 (k8s 폴더 안의 YAML 전부 적용)
 oc apply -f k8s/
@@ -148,7 +152,7 @@ oc rollout restart deployment/pixel-cv-web   # ConfigMap 변경은 Pod 재시작
 ├── media/                  ← 졸업과제 포스터·발표 영상 (jsDelivr CDN으로 서빙)
 ├── k8s/                    ← 채점 대상 YAML
 │   ├── configmap.yaml  deployment.yaml  service.yaml
-│   ├── route.yaml      secret.yaml      pvc.yaml
+│   └── route.yaml      secret.yaml      pvc.yaml
 └── images/                 ← 배포 결과 캡처
 ```
 
