@@ -893,7 +893,7 @@ data:
         <button class="abtn pink" id="btnA" aria-label="확인">A</button>
       </div>
 
-      <p class="hint">← ↑ → ↓ / WASD 이동 · Space / Enter 대화·조사 · M 전체 지도 열기 · N 미니맵 줄이기/숨기기 ·마우스로 클릭하면 그곳까지 걸어가요<br>
+      <p class="hint">← ↑ → ↓ / WASD 이동 · Space / Enter 대화·조사 · M 전체 지도 열기 · N 미니맵 키우기/숨기기 ·마우스로 클릭하면 그곳까지 걸어가요<br>
         집에 들어가 포스터와 게시판을 읽으면 💰G를 받아요. G로 📮방명록 · ⭐별점 · 🎣낚시 · 🌱꽃 심기를 즐겨 보세요!</p>
     </div>
 
@@ -1804,7 +1804,8 @@ data:
         } catch (e) { setOnline(false); }
       }
       function miniHint() {
-        if (mode !== 'play' || st.points < st.costs.bait || store.get('cvv.minihint')) return;
+        // PNU-bot과 첫 대화를 마친 뒤에 띄운다 (처음엔 "PNU-bot에게 가 보세요" 안내가 먼저)
+        if (mode !== 'play' || st.points < st.costs.bait || store.get('cvv.minihint') || !st.visited.includes('guide')) return;
         store.set('cvv.minihint', '1');
         setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 전체 지도)', 3600), 4300);
       }
@@ -1832,11 +1833,11 @@ data:
       const held = new Set();
       let tapped = null;
       const cam = { x: 0, y: 0 };
-      // 화면 왼쪽 아래 미니맵: N 키로 보통(2배) → 작게(1배) → 숨김 순환
-      const MM = { x: 6, y: 0, s: 2 };
+      // 화면 왼쪽 아래 미니맵: 작게(1배)로 시작, N 키로 작게 → 크게(2배) → 숨김 순환
+      const MM = { x: 6, y: 0, s: 1 };
       const setMiniSize = (s) => { MM.s = s; MM.y = VH - 6 - 28 * Math.max(s, 1); store.set('cvv.mm', String(s)); };
       const savedMini = store.get('cvv.mm');
-      setMiniSize(['0', '1', '2'].includes(savedMini) ? Number(savedMini) : 2);
+      setMiniSize(['0', '1', '2'].includes(savedMini) ? Number(savedMini) : 1);
 
       const npcAt = (x, y) => scene.npcs.find((n) => n.x === x && n.y === y);
       const walkable = (x, y) => x >= 0 && y >= 0 && x < scene.w && y < scene.h && !scene.solid[y][x] && !npcAt(x, y);
@@ -1869,7 +1870,7 @@ data:
         if (KEYMAP[e.key]) { held.delete(KEYMAP[e.key]); held.add(KEYMAP[e.key]); tapped = KEYMAP[e.key]; path = null; pending = null; e.preventDefault(); }
         if (e.key === ' ' || e.key === 'Enter' || e.key === 'z' || e.key === 'Z') { e.preventDefault(); if (!e.repeat) action(); }
         if ((e.key === 'm' || e.key === 'M') && !dlg) openMap();
-        if ((e.key === 'n' || e.key === 'N') && mode === 'play') { setMiniSize(MM.s === 2 ? 1 : MM.s === 1 ? 0 : 2); toast(MM.s ? `🗺️ 미니맵 ${MM.s === 2 ? '보통' : '작게'}` : '🗺️ 미니맵 숨김 (N 키로 다시 켜기)'); }
+        if ((e.key === 'n' || e.key === 'N') && mode === 'play') { setMiniSize(MM.s === 1 ? 2 : MM.s === 2 ? 0 : 1); toast(MM.s ? `🗺️ 미니맵 ${MM.s === 2 ? '크게' : '작게'}` : '🗺️ 미니맵 숨김 (N 키로 다시 켜기)'); }
       });
       window.addEventListener('keyup', (e) => { if (KEYMAP[e.key]) held.delete(KEYMAP[e.key]); });
       window.addEventListener('blur', () => held.clear());
@@ -2186,7 +2187,7 @@ data:
     - 마우스로 **아무 곳이나 클릭**하면 그곳까지 걸어가요. 전시물·주민을 클릭하면 다가가서 바로 조사해요!
     - **M** 키나 오른쪽 위 **🗺️ 지도** 버튼으로 마을 지도를 열 수 있어요. 가고 싶은 집을 누르면 자동으로 걸어가요!
     - 왼쪽 아래 **미니맵**을 클릭해도 그곳으로 이동해요. 깜빡이는 점은 아직 안 본 전시물이 있는 집이에요.
-    - **N** 키를 누를 때마다 미니맵이 보통 → 작게 → 숨김으로 바뀌어요.
+    - **N** 키를 누를 때마다 미니맵이 작게 → 크게 → 숨김으로 바뀌어요.
     - 주민이나 전시물 앞에서 **Space / Enter / A** 로 대화·조사
 
     ## 🏠 집 안 구경하기
@@ -2465,7 +2466,8 @@ data:
           $('hud').classList.remove('hidden');
           setPlace();
           claimDaily();
-          if (!store.get('cvv.helped')) { store.set('cvv.helped', '1'); setTimeout(() => startDialog(town.npcs[0]), 300); }
+          // 처음 온 방문자는 바로 대화를 띄우지 않고, 소미의 집 앞 PNU-bot에게 직접 걸어가 말을 걸게 한다
+          if (!st.visited.includes('guide')) setTimeout(() => toast('🤖 먼저 소미의 집 앞 PNU-bot에게 가서 Space로 말을 걸어 보세요!', 4500), 4000);   // 방문 선물 토스트가 끝난 뒤
         });
       }
 
@@ -2620,7 +2622,10 @@ data:
         const guide = summaryUnread(scene) && summaryOf(scene);
         if (guide) drawGuide(guide, time);
         scene.exhibits.forEach((e) => { if (guide) return; if (!e.action && !st.visited.includes(e.id)) drawBang(e.x * T + e.w * T / 2, (e.kind === 'trophy' || e.kind === 'telescope' || e.kind === 'lectern' ? e.y * T - 4 : e.y * T + (e.y < 3 ? 2 : -2)), time); });
-        scene.npcs.forEach((n) => { if (!st.visited.includes(n.id)) drawBang(n.fx * T + 8, n.fy * T + (n.sprite === 'cat' ? -2 : -14), time); });
+        // 처음 온 방문자: PNU-bot 머리 위에 "말 걸어 보세요!" 말풍선 (! 대신)
+        const botFirst = scene === town && !st.visited.includes('guide') && !dlg && town.npcs[0];
+        if (botFirst) drawGuide({ x: botFirst.fx, y: botFirst.fy - 0.7, w: 1 }, time, '💬 말 걸어 보세요!');
+        scene.npcs.forEach((n) => { if (n !== botFirst && !st.visited.includes(n.id)) drawBang(n.fx * T + 8, n.fy * T + (n.sprite === 'cat' ? -2 : -14), time); });
 
         ctx.setTransform(S, 0, 0, S, 0, 0);
         if (!scene.indoor) drawPetals(ctx);
@@ -2651,7 +2656,7 @@ data:
         px(ctx, '#5b3a22', x + Math.round(pxT * s) - 1, y + Math.round(pyT * s) - 1, s + 2, s + 2);
         px(ctx, blink ? '#ff2f7a' : '#ff8fb8', x + Math.round(pxT * s), y + Math.round(pyT * s), s, s);
         ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillStyle = '#fff'; ctx.fillText(s === 2 ? 'N: 미니맵 줄이기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
+        ctx.fillStyle = '#fff'; ctx.fillText(s === 1 ? 'N: 미니맵 키우기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
       }
 
       function shadow(x, y, w = 10) { ctx.fillStyle = 'rgba(40,20,20,.22)'; ctx.fillRect(Math.round(x) + 8 - w / 2, Math.round(y) + 14, w, 3); }
@@ -2687,11 +2692,11 @@ data:
         }
         ctx.globalAlpha = 1;
       }
-      // 안내판 위 "여기부터!" 말풍선
-      function drawGuide(g, time) {
+      // 안내판(또는 PNU-bot) 위 "여기부터!" 말풍선
+      function drawGuide(g, time, label = '📖 여기부터!') {
         const cx = (g.x + g.w / 2) * T, cy = g.y * T - 9 + Math.sin(time / 220) * 1.5;
         ctx.font = `6px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const label = '📖 여기부터!', w = Math.ceil(ctx.measureText(label).width) + 8;
+        const w = Math.ceil(ctx.measureText(label).width) + 8;
         px(ctx, '#5b3a22', cx - w / 2 - 1, cy - 6, w + 2, 11); px(ctx, '#fff3f7', cx - w / 2, cy - 5, w, 9);
         px(ctx, '#5b3a22', cx - 1, cy + 5, 3, 2);
         ctx.fillStyle = '#c2185b'; ctx.fillText(label, cx, cy);
