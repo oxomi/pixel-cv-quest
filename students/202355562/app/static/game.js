@@ -745,7 +745,7 @@
       case 'rankboard':
         // 판자 위쪽엔 트로피·물고기 그림, 아래쪽엔 "낚시 랭킹" 글씨
         px(g, '#6b4430', X + 3, Y + 6, 2, 10); px(g, '#6b4430', X + 11, Y + 6, 2, 10);
-        px(g, '#5b3a22', X - 4, Y - 9, 24, 16); px(g, '#d9b47c', X - 3, Y - 8, 22, 14);
+        px(g, '#5b3a22', X - 8, Y - 9, 32, 16); px(g, '#d9b47c', X - 7, Y - 8, 30, 14);
         px(g, '#f2b52c', X + 1, Y - 7, 5, 3); px(g, '#f2b52c', X + 3, Y - 4, 1, 1); px(g, '#f2b52c', X + 2, Y - 3, 3, 1);
         px(g, '#5cb2e6', X + 9, Y - 6, 5, 3); px(g, '#5cb2e6', X + 14, Y - 7, 2, 1); px(g, '#5cb2e6', X + 14, Y - 4, 2, 1); px(g, '#ffffff', X + 10, Y - 6, 1, 1);
         g.font = `5px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -899,7 +899,7 @@
   function miniHint() {
     if (mode !== 'play' || st.points < st.costs.bait || store.get('cvv.minihint')) return;
     store.set('cvv.minihint', '1');
-    setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 지도)', 3600), 4300);
+    setTimeout(() => toast('🎮 G가 모였어요! 연못 🎣 낚시와 🌱 꽃 심기를 해 보세요 (M: 전체 지도)', 3600), 4300);
   }
   async function visit(id) {
     if (st.visited.includes(id)) return;
@@ -1701,10 +1701,10 @@
     // 표지판 / 미방문 표시
     if (!scene.indoor) town.houses.forEach((h) => drawSign(h, time));
     if (!scene.indoor) {
-      drawPost('🎣 낚시터', 27.5 * T, 14 * T + 3);
+      drawPost('🎣 낚시터', 30 * T, 12 * T + 2);
       drawPost('📮 방명록 남기기', 17.5 * T, 11 * T - 1);
       drawPost('⭐ 별점 남기기', 22.5 * T, 11 * T - 1);
-      if (!store.get('cvv.fished')) drawBang(27.5 * T, 13 * T + 5, time);
+      if (!store.get('cvv.fished')) drawBang(30 * T, 11 * T + 4, time);
       if (!store.get('cvv.wrote')) drawBang(17.5 * T, 10 * T + 2, time);
       if (st.myRating == null) drawBang(22.5 * T, 10 * T + 2, time);
     }
@@ -1727,7 +1727,7 @@
   function drawMinimap(pxT, pyT, time) {
     if (!MM.s) {
       ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('N: 미니맵 · M: 지도', 6, VH - 5);
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('N: 미니맵 켜기 · M: 전체 지도', 6, VH - 5);
       return;
     }
     const { x, y, s } = MM, W = town.w * s, H = town.h * s;
@@ -1743,7 +1743,7 @@
     px(ctx, '#5b3a22', x + Math.round(pxT * s) - 1, y + Math.round(pyT * s) - 1, s + 2, s + 2);
     px(ctx, blink ? '#ff2f7a' : '#ff8fb8', x + Math.round(pxT * s), y + Math.round(pyT * s), s, s);
     ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.fillStyle = '#fff'; ctx.fillText(s === 2 ? 'M: 지도 · N: 크기' : 'M · N', x, y - 4);
+    ctx.fillStyle = '#fff'; ctx.fillText(s === 2 ? 'N: 미니맵 줄이기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
   }
 
   function shadow(x, y, w = 10) { ctx.fillStyle = 'rgba(40,20,20,.22)'; ctx.fillRect(Math.round(x) + 8 - w / 2, Math.round(y) + 14, w, 3); }
