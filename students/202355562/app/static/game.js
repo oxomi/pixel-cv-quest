@@ -1242,6 +1242,7 @@
         $('gbList').innerHTML = renderEntries(res.entries);
         $('gbMsg').value = '';
         out.className = 'msg ok'; out.textContent = `방명록을 남겼어요! 고마워요 💗 (남은 G: ${res.points})`;
+        store.set('cvv.wrote', '1');
         btn.disabled = res.points < cost;
       } catch (e) { out.className = 'msg err'; out.textContent = e.message; btn.disabled = false; }
     });
@@ -1409,12 +1410,13 @@
       <div class="sub">미끼 하나에 <b>💰${cost}G</b> (낚았을 때만 써요) · 낚은 물고기는 바로 팔려서 <b>G로 돌아와요</b> · 내 지갑 <b id="fiPts">${st.points}G</b></div>
       <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
       <div class="fish-stage">
-        <div class="fish-msg" id="fiMsg">낚싯대를 던지고, <b>입질</b>이 오면 바늘이 <b>초록 칸</b>에 왔을 때 <b>Space</b>!<br>
-          <small>초록 칸 <b>정중앙(노란 줄)</b>에 가까울수록 희귀하고 큰 물고기가 잘 잡혀요.</small></div>
+        <ol class="fish-steps" id="fiSteps"><li data-s="idle">① 던지기</li><li data-s="wait">② 기다리기</li><li data-s="bite">③ 입질! 타이밍 맞춰 당기기</li></ol>
+        <div class="pond-view" id="fiPond"><div class="bobber"></div><div class="bang">❗</div></div>
+        <div class="fish-msg" id="fiMsg"><b>🎣 던지기</b>를 누르면 찌가 물에 떠요. <b>찌가 쏙 잠기면</b> 입질!</div>
         <div class="fish-bar hidden" id="fiBar"><div class="fish-zone" id="fiZone"></div><div class="fish-marker" id="fiMark"></div></div>
         <div class="fish-legend hidden" id="fiLegend"><span><i style="background:#d6f2c2"></i>성공</span><span><i style="background:#7cc45a"></i>좋아요</span><span><i style="background:#ffe066"></i>완벽!</span></div>
         <div id="fiResult"></div>
-        <button class="pink" id="fiGo">🎣 낚싯대 던지기</button>
+        <button class="pink" id="fiGo">🎣 던지기 <small>(Space)</small></button>
       </div>
       <div class="doc"><h2>📖 내 물고기 도감 <small id="fiDexCount"></small></h2><div class="dex" id="fiDex">불러오는 중…</div>
       <h2>🏆 월척 랭킹 TOP 5</h2><ol class="rank" id="fiRank"></ol></div>`);
@@ -1422,32 +1424,38 @@
 
     let phase = 'idle', zone = null, pos = 0;
     const msg = (html, err) => { $('fiMsg').innerHTML = html; $('fiMsg').classList.toggle('err', !!err); };
-    const idle = (text) => {
-      stopFishing(); phase = 'idle';
-      if (text) msg(text);
-      $('fiBar').classList.add('hidden'); $('fiGo').disabled = false; $('fiGo').textContent = '🎣 다시 던지기';
+    // 단계 표시, 찌 그림, 버튼을 한 번에 맞춘다
+    const setPhase = (p) => {
+      phase = p;
+      $('fiSteps').querySelectorAll('li').forEach((li) => li.classList.toggle('on', li.dataset.s === (p === 'reel' ? 'bite' : p)));
+      $('fiPond').className = 'pond-view ' + p;
+      const go = $('fiGo');
+      go.classList.toggle('pulse', p === 'bite');
+      go.disabled = p === 'wait' || p === 'reel';
+      go.innerHTML = { idle: '🎣 던지기 <small>(Space)</small>', wait: '🌊 기다리는 중…', bite: '🪝 지금 당기기! <small>(Space)</small>', reel: '🎣 끌어올리는 중…' }[p];
+      $('fiBar').classList.toggle('hidden', p !== 'bite');
+      $('fiLegend').classList.toggle('hidden', p !== 'bite');
     };
+    const idle = (text, err) => { stopFishing(); setPhase('idle'); if (text) msg(text, err); };
     const bite = () => {
-      phase = 'bite';
-      msg('❗ <b>입질이다!</b> 바늘이 초록 칸 <b>가운데</b>에 오면 Space!');
-      $('fiLegend').classList.remove('hidden');
+      setPhase('bite');
+      msg('❗ <b>입질이다!</b> 움직이는 바늘이 초록 칸 <b>가운데(노란 줄)</b>에 올 때 당기세요!');
       const w = 10 + Math.random() * 6;   // 초록 칸 너비(%) — 좁을수록 어렵다
       zone = { a: Math.random() * (100 - w), w };
       $('fiZone').style.left = zone.a + '%'; $('fiZone').style.width = w + '%';
-      $('fiBar').classList.remove('hidden');
-      const base = 120 + Math.random() * 40;   // 평균 속도 (초당 %)
-      const wobble = 1.6 + Math.random() * 1.4, phase = Math.random() * 6.28;
+      const speedBase = 120 + Math.random() * 40;   // 평균 속도 (초당 %)
+      const wobble = 1.6 + Math.random() * 1.4, wavePhase = Math.random() * 6.28;
       let dir = Math.random() < 0.5 ? 1 : -1, last = performance.now();
-      const start = last;
+      const t0 = last;
       pos = Math.random() * 100;
       const step = (now) => {
         // 방향은 양 끝에서만 바뀌고, 속도만 부드럽게 빨라졌다 느려졌다 한다
-        const speed = base * (1 + 0.45 * Math.sin((now - start) / 1000 * wobble * Math.PI + phase));
+        const speed = speedBase * (1 + 0.45 * Math.sin((now - t0) / 1000 * wobble * Math.PI + wavePhase));
         pos += dir * speed * (now - last) / 1000; last = now;
         if (pos > 100) { pos = 200 - pos; dir = -1; }
         if (pos < 0) { pos = -pos; dir = 1; }
         $('fiMark').style.left = `calc(${pos}% - 3px)`;
-        if (now - start > 3000) return idle('물고기가 도망갔어요… 🫧 다시 던져 보세요.');
+        if (now - t0 > 3000) return idle('물고기가 도망갔어요… 🫧 <b>다시 던져</b> 보세요.');
         fishAnim = requestAnimationFrame(step);
       };
       fishAnim = requestAnimationFrame(step);
@@ -1455,20 +1463,19 @@
     const cast = () => {
       const name = $('fiName').value.trim();
       if (!name) return msg('랭킹에 올라갈 <b>이름</b>을 먼저 적어 주세요!', true);
-      if (st.points < cost) return msg(`G가 부족해요 (미끼 ${cost}G). 집 안 전시물을 읽고 모아 오세요!`, true);
+      if (st.points < cost) return msg(`G가 부족해요 (미끼 ${cost}G). 집 안 전시물을 읽거나 내일 방문 선물을 받아 오세요!`, true);
       store.set('cvv.name', name);
-      phase = 'wait';
       $('fiResult').innerHTML = '';
-      $('fiGo').textContent = '🪝 당기기!';
-      msg('🌊 찌를 바라보는 중… <small>(입질이 오기 전에 당기면 도망가요)</small>');
-      fishTimers.push(setTimeout(bite, 900 + Math.random() * 2000));
+      setPhase('wait');
+      msg('🌊 찌가 둥둥… <b>찌가 쏙 잠기면</b> 입질이에요. 조금만 기다려요!');
+      fishTimers.push(setTimeout(bite, 600 + Math.random() * 1000));
     };
     const reel = async () => {
       stopFishing();
       const inside = pos >= zone.a && pos <= zone.a + zone.w;
-      if (!inside) return idle('앗, 타이밍이 빗나갔어요! 다시 던져 보세요.');
+      if (!inside) return idle('앗, 초록 칸을 벗어났어요! <b>다시 던져</b> 보세요.', true);
       const accuracy = 1 - Math.abs(pos - (zone.a + zone.w / 2)) / (zone.w / 2);
-      phase = 'reel'; $('fiGo').disabled = true; msg('🎣 끌어올리는 중…');
+      setPhase('reel'); msg('🎣 끌어올리는 중…');
       try {
         const res = await api('/api/fish', { player: playerId, name: $('fiName').value.trim(), accuracy });
         applyState(res); store.set('cvv.fished', '1');
@@ -1477,14 +1484,14 @@
         $('fiResult').innerHTML = `<div class="catch r-${f.rarity}"><div class="big">${f.emoji}</div><b>${esc(f.name)}</b> <span class="tag">${f.rarity}</span>
           <div class="size">${f.size} cm</div><div class="sold">🏆 ${f.score}점 · 💰 +${f.price}G에 팔았어요</div>${res.record ? '<div class="rec">🎉 내 최고 점수 갱신!</div>' : ''}<small>타이밍 정확도 ${Math.round(accuracy * 100)}%</small></div>`;
         renderFishInfo(res);
-        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 물고기를 낚았어요!!' : '낚았다! 🎉');
-      } catch (e) { idle(); msg(e.message, true); }
+        idle(f.rarity === '전설' ? '✨✨ <b>전설의 물고기</b>를 낚았어요!! ✨✨' : f.rarity === '영웅' ? '🔥 <b>영웅 등급</b> 물고기를 낚았어요!!' : '낚았다! 🎉 한 번 더 던져 볼까요?');
+      } catch (e) { idle(e.message, true); }
     };
     const press = () => {
       $('fiGo').blur();
       if (phase === 'idle') cast();
-      else if (phase === 'wait') idle('너무 일찍 당겼어요! 물고기가 놀라 도망갔어요 🐟💨');
       else if (phase === 'bite') reel();
+      // 기다리는 중(wait)에는 버튼이 잠겨 있어서 실수로 당겨 실패하지 않는다
     };
     $('fiGo').addEventListener('click', press);
     modalKey = (e) => {
@@ -1493,6 +1500,7 @@
       e.preventDefault();
       press();
     };
+    setPhase('idle');
   }
   async function openFishRank() {
     openModal('🏆 월척 랭킹 게시판', '<div class="doc"><p>불러오는 중…</p></div>');
@@ -1667,8 +1675,12 @@
     if (!scene.indoor) town.houses.forEach((h) => drawSign(h, time));
     if (!scene.indoor) {
       drawPost('🎣 낚시터', 27.5 * T, 14 * T + 3);
+      drawPost('📮 방명록 남기기', 17.5 * T, 11 * T - 1);
+      drawPost('⭐ 별점 남기기', 22.5 * T, 11 * T - 1);
       if (!store.get('cvv.fished')) drawBang(27.5 * T, 13 * T + 5, time);
       if (!store.get('cvv.planted')) drawBang(8.5 * T, 10 * T + 4, time);
+      if (!store.get('cvv.wrote')) drawBang(17.5 * T, 10 * T + 2, time);
+      if (st.myRating == null) drawBang(22.5 * T, 10 * T + 2, time);
     }
     (scene.zones || []).forEach(drawZoneSign);
     // 안내판을 읽기 전에는 안내판만 표시하고, 다른 전시물의 ! 는 숨긴다
