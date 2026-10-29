@@ -1715,7 +1715,7 @@
       drawPost('🎣 낚시터', 30 * T, 12 * T + 2);
       drawPost('📮 방명록 남기기', 17.5 * T, 11 * T - 1);
       drawPost('⭐ 별점 남기기', 22.5 * T, 11 * T - 1);
-      if (!store.get('cvv.fished')) drawBang(30 * T, 11 * T + 4, time);
+      if (!store.get('cvv.fished')) drawBang(27.5 * T, 14 * T + 2, time);   // 부두 위
       if (!store.get('cvv.wrote')) drawBang(17.5 * T, 10 * T + 2, time);
       if (st.myRating == null) drawBang(22.5 * T, 10 * T + 2, time);
     }
