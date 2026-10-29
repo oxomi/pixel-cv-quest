@@ -166,25 +166,38 @@ oc rollout restart deployment/pixel-cv-web   # ConfigMap 변경은 Pod 재시작
 
 ## 5. 배포 결과
 
-> TODO: 캡처 추가
+Developer Sandbox(`osm0071-dev`)에 `oc apply -f k8s/`로 배포했습니다.
 
-- `oc get all` 출력
+- 접속 주소: https://pixel-cv-osm0071-dev.apps.rm3.7wse.p1.openshiftapps.com
+- 재현성 확인: `oc delete -f k8s/` 후 `oc apply -f k8s/`만으로 다시 배포했을 때 Pod 3개가 모두 `1/1 Running`(재시작 0회)이 되는 것을 확인했습니다.
 
-  ![oc get all](images/oc-get-all.png)
+### `oc get all`
 
-- Topology 화면 (web → redis 연결 화살표)
+![oc get all](images/oc-get-all.png)
 
-  ![topology](images/topology.png)
+- Pod 3개 모두 `1/1 Running` (web 2개 + redis 1개)
+- `deployment/pixel-cv-web` 2/2, `deployment/pixel-cv-redis` 1/1
+- `service/pixel-cv-web` 8080/TCP, `service/pixel-cv-redis` 6379/TCP
+- `route/pixel-cv` → `pixel-cv-web` 서비스의 `http` 포트, TLS `edge/Redirect`
+- `modelmesh-serving`, `workspace…`는 Sandbox가 기본으로 만든 리소스(Web Terminal 등)이고, 마지막 줄의 `applications.app.k8s.io … forbidden`은 Sandbox 사용자에게 조회 권한이 없는 리소스 종류라서 나오는 메시지로 이 서비스와는 관계없습니다.
 
-- 브라우저 접속 화면
+### Topology
 
-  ![game](images/game.png)
+![topology](images/topology.png)
 
-- 방명록 / 별점 동작
+- `app.kubernetes.io/part-of: pixel-cv` 라벨로 web과 redis가 하나의 애플리케이션(`pixel-cv`)으로 묶여 보입니다.
+- `app.openshift.io/connects-to` 어노테이션으로 web → redis 연결 화살표가 표시됩니다.
+- web 아이콘의 ↗ 표시는 Route가 연결되어 있다는 뜻입니다.
 
-  ![guestbook](images/guestbook.png)
+### 브라우저 접속 화면
 
-- 재배포 후 데이터 유지 확인 (`oc delete pod -l component=redis` 후에도 방명록 유지)
+Route 주소로 접속한 시작 화면입니다.
+
+![title](images/title.png)
+
+마을 화면입니다. 상단의 `40G`, `1/33`은 방문 선물과 NPC 대화로 받은 포인트가 Redis에 저장되고 다시 읽혀 온 값입니다.
+
+![game](images/game.png)
 
 ---
 
@@ -195,10 +208,17 @@ oc rollout restart deployment/pixel-cv-web   # ConfigMap 변경은 Pod 재시작
 | 이미지를 빌드하지 않고 내 코드를 실행해야 함 | 과제 조건상 Podman 빌드 없이 공개 이미지만 사용 | 코드를 ConfigMap으로 만들어 볼륨 마운트, 표준 라이브러리만 사용해 `pip install` 제거 |
 | Redis 드라이버(redis-py)를 설치할 수 없음 | 위와 같은 이유 | RESP 프로토콜(명령 배열 전송, `+ - : $ *` 응답 파싱)을 직접 구현 |
 | ConfigMap 마운트 디렉터리에 `..data` 같은 숨은 심볼릭 링크가 생김 | ConfigMap 볼륨의 원자적 업데이트 방식 | 정적 파일은 허용된 확장자의 최상위 파일만 서빙하도록 제한 |
-| `oc apply` 시 큰 ConfigMap 주의 | client-side apply는 오브젝트 전체를 annotation에 저장(256KB 제한) | `build_configmap.py`에서 오브젝트별 크기 검사 (가장 큰 것 약 110KB) |
+| `oc apply` 시 큰 ConfigMap 주의 | client-side apply는 오브젝트 전체를 annotation에 저장(256KB 제한) | `build_configmap.py`에서 오브젝트별 크기 검사 (가장 큰 것 약 166KB) |
 | 포스터·영상을 넣을 곳이 없음 | 이미지 빌드 없음 + ConfigMap 크기 제한 | 영상을 ffmpeg로 720p 압축(64MB → 19MB)해 Git에 두고 jsDelivr CDN으로 서빙, 주소는 ConfigMap으로 주입 |
 
-<!-- TODO: Sandbox에 직접 배포하면서 겪은 오류가 있으면 여기에 추가 -->
+Sandbox에 직접 배포하면서 본 것들:
+
+| 상황 | 원인 | 해결 / 배운 점 |
+|---|---|---|
+| 배포 직후 web Pod가 `Running`인데 READY가 `0/1` | Redis Pod가 아직 `ContainerCreating`(이미지 다운로드, PVC 연결)이라 web의 Readiness Probe(`/health`, Redis PING 확인)가 실패 | Redis가 뜬 뒤 자동으로 `1/1`이 됨. DB가 준비되기 전에는 트래픽을 받지 않도록 Probe가 의도대로 동작한 것 |
+| 코드(ConfigMap)를 바꿨는데 화면이 그대로 | ConfigMap을 `oc apply`해도 이미 떠 있는 Python 프로세스는 예전 파일을 메모리에 들고 있음 | `oc rollout restart deployment/pixel-cv-web`. RollingUpdate(`maxSurge: 1`, `maxUnavailable: 0`)라 새 Pod가 Ready가 된 뒤 옛 Pod가 하나씩 내려가서 접속이 끊기지 않음 |
+| `oc get all` 끝에 `applications.app.k8s.io is forbidden` | Sandbox 사용자에게 해당 리소스 종류의 조회 권한이 없음 | 서비스와 무관한 메시지. 필요한 리소스는 `oc get pods,svc,deploy,route`처럼 지정해서 조회 |
+| Web Terminal에서 `$'\343\205oc': command not found` | 한글 입력 상태에서 명령어 앞에 자모가 섞여 들어감 | 영문 입력으로 바꾸고 다시 입력 |
 
 ---
 
@@ -212,4 +232,4 @@ oc rollout restart deployment/pixel-cv-web   # ConfigMap 변경은 Pod 재시작
 | [sclorg/redis-container](https://github.com/sclorg/redis-container) | Redis 이미지의 `REDIS_PASSWORD`, 데이터 경로(`/var/lib/redis/data`), `run-redis` 인자 전달 방식 확인 |
 | [Redis RESP 프로토콜 문서](https://redis.io/docs/latest/develop/reference/protocol-spec/) | 최소 Redis 클라이언트 구현 |
 
-AI가 작성한 YAML은 본인 Developer Sandbox에 직접 배포하여 동작을 확인했습니다. <!-- TODO: 배포 확인 후 유지 -->
+AI가 작성한 YAML은 본인 Developer Sandbox에 직접 배포하여 동작을 확인했습니다.
