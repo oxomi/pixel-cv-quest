@@ -750,8 +750,11 @@
         px(g, '#5cb2e6', X + 1, Y + 1, 6, 3); px(g, '#ffffff', X + 2, Y + 1, 1, 1);
         break;
       case 'gardensign':
-        px(g, '#6b4430', X + 7, Y + 4, 2, 12); px(g, '#5b3a22', X - 2, Y - 6, 20, 11); px(g, '#c99a62', X - 1, Y - 5, 18, 9);
-        [[2, '#ff7aa8'], [7, '#ffd23f'], [12, '#c9a8ff']].forEach(([fx, c]) => { px(g, '#4f9a3c', X + fx, Y - 3, 1, 4); px(g, c, X + fx - 1, Y - 4, 3, 2); });
+        // 판자 위쪽엔 꽃 그림, 아래쪽엔 "꽃 심기" 글씨
+        px(g, '#6b4430', X + 7, Y + 6, 2, 10); px(g, '#5b3a22', X - 4, Y - 9, 24, 16); px(g, '#c99a62', X - 3, Y - 8, 22, 14);
+        [[1, '#ff7aa8'], [8, '#ffd23f'], [15, '#c9a8ff']].forEach(([fx, c]) => { px(g, '#4f9a3c', X + fx, Y - 5, 1, 3); px(g, c, X + fx - 1, Y - 7, 3, 2); });
+        g.font = `5px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillStyle = '#3b2414'; g.fillText('꽃 심기', X + 8, Y + 2);
         break;
       case 'board':
         px(g, '#6b4430', X + 2, Y + 6, 2, 10); px(g, '#6b4430', X + 12, Y + 6, 2, 10);
@@ -1699,7 +1702,6 @@
       drawPost('🎣 낚시터', 27.5 * T, 14 * T + 3);
       drawPost('📮 방명록 남기기', 17.5 * T, 11 * T - 1);
       drawPost('⭐ 별점 남기기', 22.5 * T, 11 * T - 1);
-      drawPost('🌱 방문자 꽃밭 · 꽃 심기', 8.5 * T, 9 * T + 4);
       if (!store.get('cvv.fished')) drawBang(27.5 * T, 13 * T + 5, time);
       if (!store.get('cvv.wrote')) drawBang(17.5 * T, 10 * T + 2, time);
       if (st.myRating == null) drawBang(22.5 * T, 10 * T + 2, time);
