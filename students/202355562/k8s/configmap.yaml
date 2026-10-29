@@ -2632,9 +2632,8 @@ data:
       }
 
       function drawMinimap(pxT, pyT, time) {
-        const keyHint = !dlg && !modalOpen;   // 대화·창이 떠 있을 땐 N/M 키 안내를 숨긴다
+        if (dlg || modalOpen) return;   // 대화·창이 떠 있을 땐 미니맵과 키 안내를 숨긴다
         if (!MM.s) {
-          if (!keyHint) return;
           ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
           ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('N: 미니맵 켜기 · M: 전체 지도', 6, VH - 5);
           return;
@@ -2651,7 +2650,6 @@ data:
         ctx.strokeRect(x + cam.x / T * s, y + cam.y / T * s, VW / T * s, VH / T * s);
         px(ctx, '#5b3a22', x + Math.round(pxT * s) - 1, y + Math.round(pyT * s) - 1, s + 2, s + 2);
         px(ctx, blink ? '#ff2f7a' : '#ff8fb8', x + Math.round(pxT * s), y + Math.round(pyT * s), s, s);
-        if (!keyHint) return;
         ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillStyle = '#fff'; ctx.fillText(s === 2 ? 'N: 미니맵 줄이기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
       }
