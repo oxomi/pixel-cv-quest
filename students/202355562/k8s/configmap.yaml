@@ -1308,10 +1308,14 @@ data:
         town.exhibits.push({ id: 'statue', kind: 'statue', name: '⭐ 별 동상', x: 22, y: 12, w: 1, h: 1, action: 'rating' });
         block(town, 17, 12); block(town, 22, 12);
         // 미니게임: 연못 낚시터 + 월척 랭킹 게시판, 방문자 꽃밭 안내판
-        town.exhibits.push({ id: 'fishing', kind: 'dock', name: '🎣 낚시터 (미끼 10G)', x: 27, y: 15, w: 1, h: 1, action: 'fishing' });
+        // 부두는 올라서서(standOn) Space로 낚시한다
+        town.exhibits.push({ id: 'fishing', kind: 'dock', name: '🎣 낚시터 (미끼 10G)', x: 27, y: 15, w: 1, h: 1, action: 'fishing', standOn: true });
         town.exhibits.push({ id: 'fishrank', kind: 'rankboard', name: '🏆 월척 랭킹 게시판', x: 26, y: 13, w: 1, h: 1, action: 'fishrank' });
         town.exhibits.push({ id: 'gardensign', kind: 'gardensign', name: '🌱 방문자 꽃밭 안내판', x: 8, y: 11, w: 1, h: 1, action: 'garden' });
         block(town, 26, 13); block(town, 8, 11);
+        // 연못 물은 못 걷고, 부두 칸만 올라설 수 있다
+        for (let y = 0; y < town.h; y++) for (let x = 0; x < town.w; x++) if (g[y][x] === 'water') town.solid[y][x] = true;
+        town.solid[15][27] = false;
 
         // 연못 연잎 + 작은 다리
         town.lily = [[28, 14], [31, 15], [29, 16], [30, 13]];
@@ -1845,6 +1849,8 @@ data:
       const inRect = (e, x, y) => x >= e.x && x < e.x + e.w && y >= e.y && y < e.y + e.h;
       const adjacentTo = (e, x, y) => !inRect(e, x, y) && x >= e.x - 1 && x <= e.x + e.w && y >= e.y - 1 && y <= e.y + e.h
         && (x >= e.x && x < e.x + e.w || y >= e.y && y < e.y + e.h);
+      // 상호작용할 수 있는 자리: 부두처럼 올라서는 전시물은 그 위, 나머지는 바로 옆
+      const canReach = (t, x, y) => (t.ref && t.ref.standOn ? inRect(t, x, y) : adjacentTo(t, x, y));
 
       function entityRect(n) { return { x: n.x, y: n.y, w: 1, h: 1 }; }
       function targets() {
@@ -1854,7 +1860,9 @@ data:
       function nearby() {
         const [dx, dy] = DIRS[me.dir];
         const all = targets();
-        return all.find((t) => inRect(t, me.x + dx, me.y + dy)) || all.find((t) => adjacentTo(t, me.x, me.y)) || null;
+        const usable = all.filter((t) => !(t.ref && t.ref.standOn));
+        return all.find((t) => t.ref && t.ref.standOn && inRect(t, me.x, me.y))
+          || usable.find((t) => inRect(t, me.x + dx, me.y + dy)) || usable.find((t) => adjacentTo(t, me.x, me.y)) || null;
       }
       function doorAhead() {
         const [dx, dy] = DIRS[me.dir];
@@ -1902,8 +1910,8 @@ data:
         // 클릭한 대상 찾기 (그림이 타일보다 큰 전시물/NPC는 살짝 위까지 인정)
         const hit = targets().find((t) => wx >= t.x * T - 2 && wx < (t.x + t.w) * T + 2 && wy >= t.y * T - (t.type === 'npc' ? 10 : 4) && wy < (t.y + t.h) * T + 2);
         if (hit) {
-          if (adjacentTo(hit, me.x, me.y) && !me.moving) return interactWith(hit);
-          return walkTo((x, y) => adjacentTo(hit, x, y), { type: 'interact', target: hit });
+          if (canReach(hit, me.x, me.y) && !me.moving) return interactWith(hit);
+          return walkTo((x, y) => canReach(hit, x, y), { type: 'interact', target: hit });
         }
         const house = scene.doors.find((d) => inRect(d.house, tx, ty) || (d.x === tx && d.y === ty));
         if (house) return walkTo((x, y) => x === house.x && y === house.y + 1, { type: 'enter', door: house });
@@ -2237,7 +2245,7 @@ data:
           <div id="mapSlot"></div>
           <div class="places">${town.houses.map((h) => `<button data-house="${h.id}">${esc(h.name)}</button>`).join('')}
             <button data-tile="17,13">📮 방명록</button><button data-tile="22,13">⭐ 별 동상</button>
-            <button data-tile="26,15">🎣 낚시터</button><button data-tile="7,14">🌱 꽃밭</button></div>`);
+            <button data-tile="27,15">🎣 낚시터</button><button data-tile="7,14">🌱 꽃밭</button></div>`);
         $('mapSlot').appendChild(map);
         map.addEventListener('click', (e) => {
           const r = map.getBoundingClientRect();
