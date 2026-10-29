@@ -532,9 +532,9 @@
       '낚은 물고기는 바로 팔려서 G가 돌아와. 희귀할수록 비싸게 팔리지!',
       '전설의 물고기도 있다던데…\n희귀하고 큰 걸 낚으면 🏆 월척 랭킹 게시판에 이름이 올라가!',
     ] },
-    { id: 'cat', name: '모찌', sprite: 'cat', x: 22, y: 15, wander: { x: 16, y: 15, w: 8, h: 2 }, lines: [
+    { id: 'cat', name: '냥이', sprite: 'cat', x: 22, y: 15, wander: { x: 16, y: 15, w: 8, h: 2 }, lines: [
       '냐옹~ 🐾',
-      '(모찌가 기분 좋게 꼬리를 흔든다)',
+      '(냥이가 기분 좋게 꼬리를 흔든다)',
     ] },
   ];
   town.npcs.forEach((n) => { n.home = { x: n.x, y: n.y }; n.fx = n.x; n.fy = n.y; });
@@ -1410,6 +1410,23 @@
       <div class="sub">미끼 하나에 <b>💰${cost}G</b> (낚았을 때만 써요) · 낚은 물고기는 바로 팔려서 <b>G로 돌아와요</b> · 내 지갑 <b id="fiPts">${st.points}G</b></div>
       <input id="fiName" maxlength="12" placeholder="랭킹에 올라갈 내 이름 (최대 12자)" value="${esc(store.get('cvv.name') || '')}">
       <div class="fish-stage">
+        <button class="help-dot" id="fiHelpBtn" title="낚시 방법과 확률 보기" aria-label="낚시 도움말">?</button>
+        <div class="fish-help hidden" id="fiHelp">
+          <b>🎣 낚시하는 법</b>
+          <ol><li><b>던지기</b>를 누르고 찌가 둥둥 떠 있는 동안 기다려요.</li>
+            <li>찌가 <b>쏙 잠기고 ❗</b>가 뜨면 입질! 3초 안에 당겨야 해요.</li>
+            <li>좌우로 움직이는 바늘이 <b>초록 칸</b> 안에 있을 때 Space(또는 버튼)를 누르면 성공!</li></ol>
+          <b>🎯 타이밍 정확도</b>
+          <p>초록 칸 <b>정중앙(노란 줄)</b>에 가까울수록 100%에 가까워요. 정확할수록 <b>희귀한 물고기</b>가 잘 나오고, 같은 물고기라도 <b>더 크게</b> 잡혀요.</p>
+          <b>🐟 등급별 확률 · 점수 · 판매가</b>
+          <table><thead><tr><th>등급</th><th>확률 (대충 → 완벽)</th><th>랭킹 점수</th><th>판매가</th></tr></thead><tbody>
+            <tr><td>흔함</td><td>68% → 60%</td><td>100~200</td><td>3~4G</td></tr>
+            <tr><td>보통</td><td>24% → 21%</td><td>300~600</td><td>8~12G</td></tr>
+            <tr><td>희귀</td><td>6% → 14%</td><td>1,000~2,000</td><td>20~30G</td></tr>
+            <tr><td>영웅</td><td>1.5% → 4%</td><td>3,000~6,000</td><td>60~90G</td></tr>
+            <tr><td>전설</td><td>0.4% → 1%</td><td>10,000~20,000</td><td>200~300G</td></tr></tbody></table>
+          <p>점수는 <b>등급이 먼저</b>, 같은 등급이면 <b>그 물고기 치고 얼마나 큰지</b>로 정해져요. 미끼(${cost}G)는 낚았을 때만 쓰이고, 낚은 물고기는 바로 팔려서 G로 돌아와요.</p>
+        </div>
         <ol class="fish-steps" id="fiSteps"><li data-s="idle">① 던지기</li><li data-s="wait">② 기다리기</li><li data-s="bite">③ 입질! 타이밍 맞춰 당기기</li></ol>
         <div class="pond-view" id="fiPond"><div class="bobber"></div><div class="bang">❗</div></div>
         <div class="fish-msg" id="fiMsg"><b>🎣 던지기</b>를 누르면 찌가 물에 떠요. <b>찌가 쏙 잠기면</b> 입질!</div>
@@ -1494,6 +1511,11 @@
       // 기다리는 중(wait)에는 버튼이 잠겨 있어서 실수로 당겨 실패하지 않는다
     };
     $('fiGo').addEventListener('click', press);
+    $('fiHelpBtn').addEventListener('click', () => {
+      const open = $('fiHelp').classList.toggle('hidden') === false;
+      $('fiHelpBtn').textContent = open ? '✕' : '?';
+      $('fiHelpBtn').blur();
+    });
     modalKey = (e) => {
       if (e.key !== ' ' && e.key !== 'Enter') return;
       if (document.activeElement === $('fiName') && e.key === ' ') return;   // 이름 입력 중 띄어쓰기
@@ -1677,8 +1699,8 @@
       drawPost('🎣 낚시터', 27.5 * T, 14 * T + 3);
       drawPost('📮 방명록 남기기', 17.5 * T, 11 * T - 1);
       drawPost('⭐ 별점 남기기', 22.5 * T, 11 * T - 1);
+      drawPost('🌱 방문자 꽃밭 · 꽃 심기', 8.5 * T, 9 * T + 4);
       if (!store.get('cvv.fished')) drawBang(27.5 * T, 13 * T + 5, time);
-      if (!store.get('cvv.planted')) drawBang(8.5 * T, 10 * T + 4, time);
       if (!store.get('cvv.wrote')) drawBang(17.5 * T, 10 * T + 2, time);
       if (st.myRating == null) drawBang(22.5 * T, 10 * T + 2, time);
     }
