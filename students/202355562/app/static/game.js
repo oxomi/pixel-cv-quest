@@ -504,7 +504,8 @@
       '처음 보는 전시물을 읽거나 주민과 처음 대화하면 💰10G!\n모은 G로 광장의 📮방명록(30G)과 ⭐별 동상(20G)을 쓸 수 있어요.',
       '방향키로 걷고 Space로 조사해요.\n마우스로 아무 곳이나 클릭하면 거기까지 알아서 걸어가요!',
       '길을 잃으면 M 키로 지도를 열어 보세요.\n가고 싶은 집을 누르면 문 앞까지 데려다줘요! 🗺️',
-      '💰 G가 모이면 연못에서 🎣 낚시를 하거나\n꽃밭에 🌱 내 이름으로 꽃을 심어 보세요! 월척 랭킹에도 도전해 봐요.',
+      '💰 모은 G로 할 수 있는 일은 네 가지예요!\n📮 방명록 30G · ⭐ 별점 20G · 🎣 연못 낚시 10G · 🌱 꽃 심기 15G',
+      '낚은 물고기는 팔려서 G로 돌아오고, 🏆 월척 랭킹에도 올라가요.\n매일 처음 들어오면 🎁 방문 선물 30G도 받을 수 있어요!',
     ] },
     { id: 'senior', name: 'DTPLab 선배', sprite: 'senior', x: 10, y: 8, lines: [
       '안녕! 나는 DTPLab 선배야. 🔬',
@@ -1725,7 +1726,9 @@
   }
 
   function drawMinimap(pxT, pyT, time) {
+    const keyHint = !dlg && !modalOpen;   // 대화·창이 떠 있을 땐 N/M 키 안내를 숨긴다
     if (!MM.s) {
+      if (!keyHint) return;
       ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
       ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('N: 미니맵 켜기 · M: 전체 지도', 6, VH - 5);
       return;
@@ -1742,6 +1745,7 @@
     ctx.strokeRect(x + cam.x / T * s, y + cam.y / T * s, VW / T * s, VH / T * s);
     px(ctx, '#5b3a22', x + Math.round(pxT * s) - 1, y + Math.round(pyT * s) - 1, s + 2, s + 2);
     px(ctx, blink ? '#ff2f7a' : '#ff8fb8', x + Math.round(pxT * s), y + Math.round(pyT * s), s, s);
+    if (!keyHint) return;
     ctx.font = `5px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
     ctx.fillStyle = '#fff'; ctx.fillText(s === 2 ? 'N: 미니맵 줄이기 · M: 전체 지도' : 'N: 숨기기 · M: 전체 지도', x, y - 4);
   }
